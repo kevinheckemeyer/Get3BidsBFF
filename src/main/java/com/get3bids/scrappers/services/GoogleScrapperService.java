@@ -1,7 +1,7 @@
 package com.get3bids.scrappers.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.get3bids.scrappers.dti.GoogleMapSearchItem;
+import com.get3bids.scrappers.dti.get3bids.GoogleMapSearchItem;
 import com.get3bids.scrappers.utils.CommonUtils;
 import com.github.openjson.JSONArray;
 import com.github.openjson.JSONException;

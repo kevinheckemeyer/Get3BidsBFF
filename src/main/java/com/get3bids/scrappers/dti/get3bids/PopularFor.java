@@ -1,4 +1,4 @@
-package com.get3bids.scrappers.dti;
+package com.get3bids.scrappers.dti.get3bids;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -6,17 +6,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DiningOptions {
+public class PopularFor {
     @JsonProperty("Breakfast")
     public boolean breakfast;
-    @JsonProperty("Brunch")
-    public boolean brunch;
     @JsonProperty("Lunch")
     public boolean lunch;
     @JsonProperty("Dinner")
     public boolean dinner;
-    @JsonProperty("Dessert")
-    public boolean dessert;
-    @JsonProperty("Seating")
-    public boolean seating;
+    @JsonProperty("Solo dining")
+    public boolean soloDining;
 }

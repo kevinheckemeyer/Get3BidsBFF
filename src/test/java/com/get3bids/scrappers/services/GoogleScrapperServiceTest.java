@@ -1,7 +1,7 @@
 package com.get3bids.scrappers.services;
 
 import com.get3bids.AbstractTest;
-import com.get3bids.scrappers.dti.GoogleMapSearchItem;
+import com.get3bids.scrappers.dti.get3bids.GoogleMapSearchItem;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

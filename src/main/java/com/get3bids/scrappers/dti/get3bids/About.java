@@ -1,4 +1,4 @@
-package com.get3bids.scrappers.dti;
+package com.get3bids.scrappers.dti.get3bids;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
