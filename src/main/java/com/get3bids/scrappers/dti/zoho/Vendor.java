@@ -44,9 +44,9 @@ public class Vendor {
     @JsonProperty("Business_Status")
     public String businessStatus;
     @JsonProperty("Latitude")
-    public String Latitude;
+    public String latitude;
     @JsonProperty("Longitude")
-    public String Longitude;
+    public String longitude;
     @JsonProperty("Address")
     public String address;
     @JsonProperty("Timezone")
