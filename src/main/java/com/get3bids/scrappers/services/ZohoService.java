@@ -13,6 +13,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.StringTokenizer;
+
 @Slf4j
 @Service
 public class ZohoService {
@@ -87,16 +89,21 @@ public class ZohoService {
         owner.setId(users.getUsers().get(0).id);
         String companyId = commonResponse.getData().get(0).getDetails().getId();
         account.setCompany(companyId);
-        account.setAccount_Name(googleMapSearchItem.getName());
+        ArrayList<String> servicesProvided = new ArrayList<>();
+        servicesProvided.add(googleMapSearchItem.getType());
+        account.setAccount_Name(googleMapSearchItem.getFull_address());
         account.setBilling_City(googleMapSearchItem.getCity());
         account.setBilling_State(googleMapSearchItem.getState());
         account.setBilling_Street(googleMapSearchItem.getStreet());
+        account.setBilling_Code(googleMapSearchItem.getPostal_code());
         account.setDescription(googleMapSearchItem.getCategory());
         account.setPropertyCity(googleMapSearchItem.getCity());
         account.setPropertyState(googleMapSearchItem.getState());
         account.setPropertyStreet(googleMapSearchItem.getStreet());
         account.setPropertyZip(googleMapSearchItem.getPostal_code());
         account.setFullAddress(googleMapSearchItem.getFull_address());
+        account.setAccount_Type("Company Property");
+        account.setServicesProvided(servicesProvided);
         account.setOwner(owner);
         ArrayList<String> duplicateFieldCheck = new ArrayList<>();
         duplicateFieldCheck.add("Account_Name");
@@ -144,9 +151,12 @@ public class ZohoService {
             duplicateFieldCheck.add("Phone");
             duplicateFieldCheck.add("Vendor_Name");
             duplicateFieldCheck.add("Street");
-            //ArrayList<String> subTypes = new ArrayList<>();
-            //subTypes.add("Roofing contractor");
-            //vendor.setSubTypes(CommonUtils.getObjectMapper().writeValueAsString(subTypes));
+            ArrayList<String> subTypes = new ArrayList<>();
+            StringTokenizer tokenizer = new StringTokenizer(googleMapSearchItem.getSubtypes(),",");
+            while (tokenizer.hasMoreTokens()) {
+                subTypes.add(tokenizer.nextToken());
+            }
+            vendor.setSubTypes(subTypes);
             Owner owner = new Owner();
             owner.setId(users.getUsers().get(0).id);
             vendor.setOwner(owner);

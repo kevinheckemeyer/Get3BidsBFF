@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class Account {
@@ -73,6 +75,11 @@ public class Account {
     public String propertyStreet;
     @JsonProperty("Property_Zip")
     public String propertyZip;
+    @JsonProperty("Location_Name")
+    public String locationName;
+    @JsonProperty("Services_Provided")
+    public List<String> servicesProvided;
+
 
 
 }
