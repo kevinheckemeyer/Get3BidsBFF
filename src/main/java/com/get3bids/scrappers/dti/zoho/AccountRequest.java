@@ -8,4 +8,5 @@ import java.util.ArrayList;
 @Setter
 public class AccountRequest {
     public ArrayList<Account> data;
+    public ArrayList<String> duplicate_check_fields;
 }

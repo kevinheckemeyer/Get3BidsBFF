@@ -8,4 +8,5 @@ import java.util.ArrayList;
 @Setter
 public class VendorRequest {
     public ArrayList<Vendor> data;
+    public ArrayList<String> duplicate_check_fields;
 }

@@ -1,10 +1,7 @@
 package com.get3bids.scrappers.services;
 
-import com.get3bids.scrappers.dti.zoho.HttpResult;
-import com.get3bids.scrappers.dti.zoho.Users;
 import com.get3bids.scrappers.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

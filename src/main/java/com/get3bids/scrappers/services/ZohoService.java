@@ -36,16 +36,16 @@ public class ZohoService {
     }
     private CommonResponse createVendor(String  vendorStr)throws JsonProcessingException{
         CommonResponse commonResponse = null;
-        HttpResult httpResult = zohoConnectionService.postWithAccessToken(zohoConfig,zohoConfig.getApiDomain()+"/crm/v2/Vendors",vendorStr);
-        if(httpResult.getStatusCode() == 201) {
+        HttpResult httpResult = zohoConnectionService.postWithAccessToken(zohoConfig,zohoConfig.getApiDomain()+"/crm/v2/Vendors/upsert",vendorStr);
+        if(httpResult.getStatusCode() == 200) {
             commonResponse = CommonUtils.getObjectMapper().readValue(httpResult.getResult(),CommonResponse.class);
         }
         return commonResponse;
     }
     private CommonResponse createAccount(String  accountStr)throws JsonProcessingException{
         CommonResponse commonResponse = null;
-        HttpResult httpResult = zohoConnectionService.postWithAccessToken(zohoConfig,zohoConfig.getApiDomain()+"/crm/v2/Accounts",accountStr);
-        if(httpResult.getStatusCode() == 201) {
+        HttpResult httpResult = zohoConnectionService.postWithAccessToken(zohoConfig,zohoConfig.getApiDomain()+"/crm/v2/Accounts/upsert",accountStr);
+        if(httpResult.getStatusCode() == 200) {
             commonResponse = CommonUtils.getObjectMapper().readValue(httpResult.getResult(),CommonResponse.class);
         }
         return commonResponse;
@@ -98,10 +98,15 @@ public class ZohoService {
         account.setPropertyZip(googleMapSearchItem.getPostal_code());
         account.setFullAddress(googleMapSearchItem.getFull_address());
         account.setOwner(owner);
+        ArrayList<String> duplicateFieldCheck = new ArrayList<>();
+        duplicateFieldCheck.add("Account_Name");
+        duplicateFieldCheck.add("Property_Street");
+        duplicateFieldCheck.add("Full_Address");
         AccountRequest accountRequest = new AccountRequest();
         ArrayList<Account> accounts = new ArrayList<>();
         accounts.add(account);
         accountRequest.setData(accounts);
+        accountRequest.setDuplicate_check_fields(duplicateFieldCheck);
         String accountStr = CommonUtils.getObjectMapper().writeValueAsString(accountRequest);
         return accountStr;
     }
@@ -135,6 +140,10 @@ public class ZohoService {
             vendor.setGoogleVerified(googleMapSearchItem.isVerified());
             vendor.setWorkingHours(googleMapSearchItem.getWorking_hours_old_format());
             vendor.setGoogleCategory(googleMapSearchItem.getCategory());
+            ArrayList<String> duplicateFieldCheck = new ArrayList<>();
+            duplicateFieldCheck.add("Phone");
+            duplicateFieldCheck.add("Vendor_Name");
+            duplicateFieldCheck.add("Street");
             //ArrayList<String> subTypes = new ArrayList<>();
             //subTypes.add("Roofing contractor");
             //vendor.setSubTypes(CommonUtils.getObjectMapper().writeValueAsString(subTypes));
@@ -143,6 +152,7 @@ public class ZohoService {
             vendor.setOwner(owner);
             data.add(vendor);
             vendorRequest.setData(data);
+            vendorRequest.setDuplicate_check_fields(duplicateFieldCheck);
             String vendorStr = CommonUtils.getObjectMapper().writeValueAsString(vendorRequest);
             return vendorStr;
 
