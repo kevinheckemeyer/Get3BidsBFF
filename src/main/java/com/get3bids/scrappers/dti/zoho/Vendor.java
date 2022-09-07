@@ -43,7 +43,7 @@ public class Vendor {
     public String googlRating;
     @JsonProperty("Business_Status")
     public String businessStatus;
-    @JsonProperty("Latitude")
+    @JsonProperty("Lat")
     public String latitude;
     @JsonProperty("Longitude")
     public String longitude;
@@ -71,6 +71,20 @@ public class Vendor {
     public String googleCategory;
     @JsonProperty("Subtypes")
     public List<String> subTypes;
+    @JsonProperty("Mon_Hours")
+    public String monHours;
+    @JsonProperty("Tue_Hours")
+    public String tueHours;
+    @JsonProperty("Wed_Hours")
+    public String wedHours;
+    @JsonProperty("Thu_Hours")
+    public String thuHours;
+    @JsonProperty("Fri_Hours")
+    public String friHours;
+    @JsonProperty("Sat_Hours")
+    public String satHours;
+    @JsonProperty("Sun_Hours")
+    public String sunHours;
 
 
 

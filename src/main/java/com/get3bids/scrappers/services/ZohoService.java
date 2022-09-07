@@ -135,11 +135,7 @@ public class ZohoService {
             vendor.setBusinessStatus(googleMapSearchItem.getBusiness_status());
             vendor.setAddress(googleMapSearchItem.getFull_address());
             vendor.setTimeZone(googleMapSearchItem.getTime_zone());
-            vendor.setGoogle1StarReviews(String.valueOf(googleMapSearchItem.getReviews_per_score().get_1()));
-            vendor.setGoogle2StarReviews(String.valueOf(googleMapSearchItem.getReviews_per_score().get_2()));
-            vendor.setGoogle3StarReviews(String.valueOf(googleMapSearchItem.getReviews_per_score().get_3()));
-            vendor.setGoogle4StarReviews(String.valueOf(googleMapSearchItem.getReviews_per_score().get_4()));
-            vendor.setGoogle5StarReviews(String.valueOf(googleMapSearchItem.getReviews_per_score().get_5()));
+            setStarReviews(vendor,googleMapSearchItem);
             vendor.setLatitude(String.valueOf(googleMapSearchItem.getLatitude()));
             vendor.setLongitude(String.valueOf(googleMapSearchItem.getLongitude()));
             vendor.setZip_Code(googleMapSearchItem.getPostal_code());
@@ -147,25 +143,67 @@ public class ZohoService {
             vendor.setGoogleVerified(googleMapSearchItem.isVerified());
             vendor.setWorkingHours(googleMapSearchItem.getWorking_hours_old_format());
             vendor.setGoogleCategory(googleMapSearchItem.getCategory());
-            ArrayList<String> duplicateFieldCheck = new ArrayList<>();
-            duplicateFieldCheck.add("Phone");
-            duplicateFieldCheck.add("Vendor_Name");
-            duplicateFieldCheck.add("Street");
-            ArrayList<String> subTypes = new ArrayList<>();
-            StringTokenizer tokenizer = new StringTokenizer(googleMapSearchItem.getSubtypes(),",");
-            while (tokenizer.hasMoreTokens()) {
-                subTypes.add(tokenizer.nextToken());
-            }
-            vendor.setSubTypes(subTypes);
+            setSubTypes(vendor,googleMapSearchItem);
+            setWorkingHours(vendor,googleMapSearchItem);
             Owner owner = new Owner();
             owner.setId(users.getUsers().get(0).id);
             vendor.setOwner(owner);
             data.add(vendor);
             vendorRequest.setData(data);
-            vendorRequest.setDuplicate_check_fields(duplicateFieldCheck);
+            setDuplicateFields(vendorRequest);
             String vendorStr = CommonUtils.getObjectMapper().writeValueAsString(vendorRequest);
             return vendorStr;
 
+    }
+    private void setStarReviews(Vendor vendor,GoogleMapSearchItem googleMapSearchItem){
+        vendor.setGoogle1StarReviews(String.valueOf(googleMapSearchItem.getReviews_per_score().get_1()));
+        vendor.setGoogle2StarReviews(String.valueOf(googleMapSearchItem.getReviews_per_score().get_2()));
+        vendor.setGoogle3StarReviews(String.valueOf(googleMapSearchItem.getReviews_per_score().get_3()));
+        vendor.setGoogle4StarReviews(String.valueOf(googleMapSearchItem.getReviews_per_score().get_4()));
+        vendor.setGoogle5StarReviews(String.valueOf(googleMapSearchItem.getReviews_per_score().get_5()));
+    }
+    private void setDuplicateFields(VendorRequest vendorRequest){
+        ArrayList<String> duplicateFieldCheck = new ArrayList<>();
+        duplicateFieldCheck.add("Phone");
+        duplicateFieldCheck.add("Vendor_Name");
+        duplicateFieldCheck.add("Street");
+        vendorRequest.setDuplicate_check_fields(duplicateFieldCheck);
+    }
+    private void setSubTypes(Vendor vendor,GoogleMapSearchItem googleMapSearchItem){
+        ArrayList<String> subTypes = new ArrayList<>();
+        StringTokenizer tokenizer = new StringTokenizer(googleMapSearchItem.getSubtypes(),",");
+        while (tokenizer.hasMoreTokens()) {
+            subTypes.add(tokenizer.nextToken());
+        }
+        vendor.setSubTypes(subTypes);
+    }
+    private void setWorkingHours(Vendor vendor,GoogleMapSearchItem googleMapSearchItem){
+        StringTokenizer weekdays = new StringTokenizer(googleMapSearchItem.getWorking_hours_old_format(),"|");
+        int weeDayCount = 0;
+        while (weekdays.hasMoreTokens()) {
+            if(weeDayCount==0) {
+                vendor.setMonHours(weekdays.nextToken());
+            }
+            if(weeDayCount==1) {
+                vendor.setTueHours(weekdays.nextToken());
+            }
+            if(weeDayCount==2) {
+                vendor.setWedHours(weekdays.nextToken());
+            }
+            if(weeDayCount==3) {
+                vendor.setThuHours(weekdays.nextToken());
+            }
+            if(weeDayCount==4) {
+                vendor.setFriHours(weekdays.nextToken());
+            }
+            if(weeDayCount==5) {
+                vendor.setSatHours(weekdays.nextToken());
+            }
+            if(weeDayCount==6) {
+                vendor.setSunHours(weekdays.nextToken());
+            }
+            weeDayCount++;
+        }
     }
 
 
