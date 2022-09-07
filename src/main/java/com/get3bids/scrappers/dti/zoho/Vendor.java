@@ -65,6 +65,10 @@ public class Vendor {
     public boolean googleVerified;
     @JsonProperty("Working_Hours")
     public String workingHours;
+    @JsonProperty("Google_Category")
+    public String googleCategory;
+    @JsonProperty("Subtypes")
+    public String subTypes;
 
 
 

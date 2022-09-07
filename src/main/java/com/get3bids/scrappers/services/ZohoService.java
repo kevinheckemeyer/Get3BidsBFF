@@ -134,6 +134,10 @@ public class ZohoService {
             //vendor.setMapLink(URLEncoder.encode(googleMapSearchItem.getLocation_link(), StandardCharsets.UTF_8.toString()));
             vendor.setGoogleVerified(googleMapSearchItem.isVerified());
             vendor.setWorkingHours(googleMapSearchItem.getWorking_hours_old_format());
+            vendor.setGoogleCategory(googleMapSearchItem.getCategory());
+            //ArrayList<String> subTypes = new ArrayList<>();
+            //subTypes.add("Roofing contractor");
+            //vendor.setSubTypes(CommonUtils.getObjectMapper().writeValueAsString(subTypes));
             Owner owner = new Owner();
             owner.setId(users.getUsers().get(0).id);
             vendor.setOwner(owner);
