@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +23,7 @@ public class ZohoService {
     @Autowired
     GoogleScrapperService googleScrapperService;
     public final String GOOGLE_MAPS_SEARCH_QUERY = "roof contractors in florida";
-    public final int GOOGLE_MAPS_SEARCH_RECORD_LIMIT = 20;
+    public final int GOOGLE_MAPS_SEARCH_RECORD_LIMIT = 1;
     public final int GOOGLE_MAPS_SEARCH_REVIEW_LIMIT = 20;
     public Users getUsers()throws JsonProcessingException {
         Users users = null;
@@ -63,8 +64,13 @@ public class ZohoService {
                 List<GoogleMapSearchItem> googleMapSearchItemList = googleScrapperService.googleMapsSearchV2(inputMap);
                 for (GoogleMapSearchItem googleMapSearchItem : googleMapSearchItemList) {
                     commonResponse = createVendor(populateVendor(googleMapSearchItem, users));
-                    commonResponse = createAccount(populateAccount(googleMapSearchItem, users, commonResponse));
-                    log.info("Company and Location Creation Status : "+commonResponse.getData().get(0).getStatus());
+                    if(commonResponse!=null) {
+                        commonResponse = createAccount(populateAccount(googleMapSearchItem, users, commonResponse));
+                        log.info("Company and Location Creation Status : " + commonResponse.getData().get(0).getStatus());
+                    }else{
+                        log.info("Company creation failed");
+                        break;
+                    }
                 }
             }else{
                 log.info("Zoho access token could be expired.");
@@ -99,7 +105,7 @@ public class ZohoService {
         String accountStr = CommonUtils.getObjectMapper().writeValueAsString(accountRequest);
         return accountStr;
     }
-    private String populateVendor(GoogleMapSearchItem googleMapSearchItem,Users users)throws JsonProcessingException{
+    private String populateVendor(GoogleMapSearchItem googleMapSearchItem,Users users)throws JsonProcessingException, UnsupportedEncodingException {
             VendorRequest vendorRequest = new VendorRequest();
             ArrayList<Vendor> data = new ArrayList<>();
             Vendor vendor = new Vendor();
@@ -116,9 +122,18 @@ public class ZohoService {
             vendor.setGoogleReviewLink(googleMapSearchItem.getReviews_link());
             vendor.setBusinessStatus(googleMapSearchItem.getBusiness_status());
             vendor.setAddress(googleMapSearchItem.getFull_address());
-            //vendor.setLatitude(String.valueOf(googleMapSearchItem.getLatitude()));
-            //vendor.setLongitude(String.valueOf(googleMapSearchItem.getLongitude()));
+            vendor.setTimeZone(googleMapSearchItem.getTime_zone());
+            vendor.setGoogle1StarReviews(String.valueOf(googleMapSearchItem.getReviews_per_score().get_1()));
+            vendor.setGoogle2StarReviews(String.valueOf(googleMapSearchItem.getReviews_per_score().get_2()));
+            vendor.setGoogle3StarReviews(String.valueOf(googleMapSearchItem.getReviews_per_score().get_3()));
+            vendor.setGoogle4StarReviews(String.valueOf(googleMapSearchItem.getReviews_per_score().get_4()));
+            vendor.setGoogle5StarReviews(String.valueOf(googleMapSearchItem.getReviews_per_score().get_5()));
+            vendor.setLatitude(String.valueOf(googleMapSearchItem.getLatitude()));
+            vendor.setLongitude(String.valueOf(googleMapSearchItem.getLongitude()));
             vendor.setZip_Code(googleMapSearchItem.getPostal_code());
+            //vendor.setMapLink(URLEncoder.encode(googleMapSearchItem.getLocation_link(), StandardCharsets.UTF_8.toString()));
+            vendor.setGoogleVerified(googleMapSearchItem.isVerified());
+            vendor.setWorkingHours(googleMapSearchItem.getWorking_hours_old_format());
             Owner owner = new Owner();
             owner.setId(users.getUsers().get(0).id);
             vendor.setOwner(owner);

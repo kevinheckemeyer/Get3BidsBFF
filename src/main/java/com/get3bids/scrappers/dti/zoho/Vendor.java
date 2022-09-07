@@ -47,4 +47,25 @@ public class Vendor {
     public String Longitude;
     @JsonProperty("Address")
     public String address;
+    @JsonProperty("Timezone")
+    public String timeZone;
+    @JsonProperty("Google_1_Star_Reviews")
+    public String google1StarReviews;
+    @JsonProperty("Google_2_Star_Reviews")
+    public String google2StarReviews;
+    @JsonProperty("Google_3_Star_Reviews")
+    public String google3StarReviews;
+    @JsonProperty("Google_4_Star_Reviews")
+    public String google4StarReviews;
+    @JsonProperty("Google_5_Star_Reviews")
+    public String google5StarReviews;
+    @JsonProperty("Map_Link")
+    public String mapLink;
+    @JsonProperty("Google_Verified")
+    public boolean googleVerified;
+    @JsonProperty("Working_Hours")
+    public String workingHours;
+
+
+
 }

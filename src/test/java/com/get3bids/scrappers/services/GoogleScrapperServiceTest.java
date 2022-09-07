@@ -2,6 +2,7 @@ package com.get3bids.scrappers.services;
 
 import com.get3bids.AbstractTest;
 import com.get3bids.scrappers.dti.outscraper.GoogleMapSearchItem;
+import com.get3bids.scrappers.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,7 @@ public class GoogleScrapperServiceTest extends AbstractTest {
                 put("language", "en");
             }};
             List<GoogleMapSearchItem> googleMapSearchItemList = googleScrapperService.googleMapsSearchV2(inputMap);
-            System.out.println(googleMapSearchItemList.size());
+            System.out.println(CommonUtils.getObjectMapper().writeValueAsString(googleMapSearchItemList.get(0)));
 
         }catch(Exception ex){
             System.out.println(ex.getMessage());
