@@ -1,0 +1,3252 @@
+{
+	"info": {
+		"_postman_id": "b6faef1f-d7fe-4c7b-acfa-2a2b1c52ef05",
+		"name": "Zoho CRM REST APIs",
+		"description": "Zoho CRM provides REST API (Application Programming Interface) that lets you integrate CRM with third-party applications such as, accounting, ERP, ecommerce, self-service portals and others.\n\nThe REST API uses simple HTTP methods, such as GET, POST, PUT and DELETE. These methods allow CRM data to be extracted in JSON format including errors, making it easy to develop new applications and also to integrate with existing business applications.\n\n**Version:** 2\n\n**Note:** All requests to the API should be made over HTTPS. The API requests and responses are formatted in JSON.\n\n**Postman Collection:** https://www.getpostman.com/collections/8dd1902767a9d083db3f",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "OAuth",
+			"item": [
+				{
+					"name": "Generate Access Token and Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (responseCode.code === 200)",
+									"{",
+									"    var jsonData = JSON.parse(responseBody);",
+									"",
+									"    pm.environment.set(\"refresh-token\", jsonData.refresh_token);",
+									"    pm.environment.set(\"access-token\", jsonData.access_token);",
+									"    pm.environment.set(\"expiry-time\", Date.now() + parseInt(jsonData.expires_in));",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "client_id",
+									"value": "{{client-id}}",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{client-secret}}",
+									"type": "text"
+								},
+								{
+									"key": "redirect_uri",
+									"value": "{{redirect-uri}}",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "code",
+									"value": "{{grant-type}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "authorization_code",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{accounts-domain}}/oauth/v2/token",
+							"host": [
+								"{{accounts-domain}}"
+							],
+							"path": [
+								"oauth",
+								"v2",
+								"token"
+							]
+						},
+						"description": "### Step 3: Generate Access Token and Refresh Token\n\nOAuth2.0 requests are usually authenticated with an **access token**, which is passed as bearer token. To use this access token, you need to construct a normal HTTP request and include it in an Authorization header along with the value of Bearer."
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Access Tokens",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (responseCode.code === 200)",
+									"{",
+									"    var jsonData = JSON.parse(responseBody);",
+									"",
+									"    pm.environment.set(\"access-token\", jsonData.access_token);",
+									"    pm.environment.set(\"expiry-time\", Date.now() + parseInt(jsonData.expires_in));",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "client_id",
+									"value": "{{client-id}}",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{client-secret}}",
+									"type": "text"
+								},
+								{
+									"key": "refresh_token",
+									"value": "{{refresh-token}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "refresh_token",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{accounts-domain}}/oauth/v2/token",
+							"host": [
+								"{{accounts-domain}}"
+							],
+							"path": [
+								"oauth",
+								"v2",
+								"token"
+							]
+						},
+						"description": "### Step 4: Refresh Access Tokens\n\nAs obvious as it is, refresh tokens are used to generate new access tokens when the current ones are past the expiry time."
+					},
+					"response": []
+				},
+				{
+					"name": "Revoking Tokens",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"if (responseCode.code === 200)",
+									"{",
+									"    var jsonData = JSON.parse(responseBody);",
+									"    ",
+									"    if (jsonData.status == \"sucess\")",
+									"    {",
+									"        pm.environment.set(\"refresh-token\", \"\");",
+									"        pm.environment.set(\"access-token\", \"\");",
+									"        pm.environment.set(\"expiry-time\", \"\");",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "token",
+									"value": "{{refresh-token}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{accounts-domain}}/oauth/v2/token/revoke",
+							"host": [
+								"{{accounts-domain}}"
+							],
+							"path": [
+								"oauth",
+								"v2",
+								"token",
+								"revoke"
+							]
+						},
+						"description": "### Step 5: Revoking Tokens\n\nIn case if you wish to revoke the refresh_token, use the below approach."
+					},
+					"response": []
+				}
+			],
+			"description": "The Zoho CRM API is authenticated using OAuth2.0 protocol. This allows you to share specific data with any application while keeping your usernames and passwords private. This protocol provides users with a secure and easy way to use authentication.\n\n### Step 1: Register your application\n\nBefore you get started with authorization and make any calls to the Zoho CRM API, you need to register your application with Zoho CRM API.\n\nTo register:\n\n1. Go to the site: _https://accounts.zoho.com/developerconsole_\n2. Click **Add Client ID**.\n3. Enter the Client name, domain and redirect URL.\n4. Click **Create**.\n5. Note down your client ID.\n\nRegistered applications will receive the following credentials:\n\n**Client id** – The consumer key generated from the connected app.\n\n**Client Secret** – The consumer secret generated from the connected app.\n\n**Redirect URI** – The Callback URL that you registered during the app registration.\n\n### Step 2: Authorization Request\n\nTo authenticate your application, you need to redirect the user of the client application to the suitable **authorization endpoint**. On successful login, Zoho CRM will call your redirect URI along with an authorization code."
+		},
+		{
+			"name": "Org",
+			"item": [
+				{
+					"name": "Org",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/org",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"org"
+							]
+						},
+						"description": "To get the organization data."
+					},
+					"response": []
+				}
+			],
+			"description": "Normally, a CRM account is for management of your company. The organization API allows access for users to view information about the client company. You can make the information read-only or make changes to it as per requirement."
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/users?type=AllUsers",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"users"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "AllUsers"
+								}
+							]
+						},
+						"description": "To retrieve the users data specified in the API request. You can specify the type of users that needs to be retrieved using the Users API. For example, use type=AllUsers"
+					},
+					"response": []
+				},
+				{
+					"name": "User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/users/{{user-id}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"users",
+								"{{user-id}}"
+							]
+						},
+						"description": "To get the details of any specific user. Specify the unique id of the user in your API request to get the data for that particular user."
+					},
+					"response": []
+				}
+			],
+			"description": "In Zoho CRM, user is the one who is allowed to access and manage the CRM records. These users can be defined under various profiles and categories such as Administrators, Standard, etc,.\n\nUsing the Users APIs, you can retrieve the basic information of your available CRM users. Use the type parameter to get the required list of users. For example, you can set the param type as admin, to get the list of CRM users with Administrative profile."
+		},
+		{
+			"name": "Roles",
+			"item": [
+				{
+					"name": "Roles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/roles",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"roles"
+							]
+						},
+						"description": "To retrieve the data of roles."
+					},
+					"response": []
+				},
+				{
+					"name": "Role",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/roles/{{role-id}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"roles",
+								"{{role-id}}"
+							]
+						},
+						"description": "To get the details of any specific role. Specify the unique id of the role in your API request to get the data for that particular role."
+					},
+					"response": []
+				}
+			],
+			"description": "In Zoho CRM, roles are issued to users by the Administrator. Usually, roles are meant to denote the different levels of employees in a company. For instance, it can be Managers, Sales Reps, Supervisors, Product Management Staff, etc."
+		},
+		{
+			"name": "Profiles",
+			"item": [
+				{
+					"name": "Profiles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/profiles",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"profiles"
+							]
+						},
+						"description": "Using the Profiles API, you can retrieve the basic information of the profiles"
+					},
+					"response": []
+				},
+				{
+					"name": "Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/profiles/{{profile-id}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"profiles",
+								"{{profile-id}}"
+							]
+						},
+						"description": "To get the details of any specific profile. Specify the unique id of the profile in your API request to get the data for that particular profile."
+					},
+					"response": []
+				}
+			],
+			"description": "Profiles define a set of privileges a user has within Zoho CRM. The administrator gets to decide a user's level of data access. All users need to be assigned to a profile during initialization."
+		},
+		{
+			"name": "Modules",
+			"item": [
+				{
+					"name": "Modules",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/modules",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"modules"
+							]
+						},
+						"description": "To get the module related data. This will retrieve the list of modules available in your CRM account."
+					},
+					"response": []
+				},
+				{
+					"name": "Module (Meta Data)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/modules/{{module-api-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"modules",
+								"{{module-api-name}}"
+							]
+						},
+						"description": "To get the meta data for a specific module. Specify the API name of the module, such as Leads, Accounts or Deals in your API request."
+					},
+					"response": []
+				}
+			],
+			"description": "Zoho CRM has standard modules such as, Leads, Accounts, Contacts, Deals, Forecasts, Activities, etc,."
+		},
+		{
+			"name": "Fields",
+			"item": [
+				{
+					"name": "Fields",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/fields?module={{module-api-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"fields"
+							],
+							"query": [
+								{
+									"key": "module",
+									"value": "{{module-api-name}}"
+								}
+							]
+						},
+						"description": "To get the field meta data for the specified module."
+					},
+					"response": []
+				},
+				{
+					"name": "Field",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/fields/{{field-id}}?module={{module-api-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"fields",
+								"{{field-id}}"
+							],
+							"query": [
+								{
+									"key": "module",
+									"value": "{{module-api-name}}"
+								}
+							]
+						},
+						"description": "To get the data of any specific field of the module. Specify the field id of the module in your API request URL, so that the data related to that particular field will be retrieved."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Layouts",
+			"item": [
+				{
+					"name": "Layouts",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/layouts?module={{module-api-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"layouts"
+							],
+							"query": [
+								{
+									"key": "module",
+									"value": "{{module-api-name}}"
+								}
+							]
+						},
+						"description": "To get the layouts associated with the particular module."
+					},
+					"response": []
+				},
+				{
+					"name": "Layout",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/layouts/{{layout-id}}?module={{module-api-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"layouts",
+								"{{layout-id}}"
+							],
+							"query": [
+								{
+									"key": "module",
+									"value": "{{module-api-name}}"
+								}
+							]
+						},
+						"description": "To get the details of any specific layout. Specify the unique id of the layouy in your API request to get the data for that particular layout."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Custom Views",
+			"item": [
+				{
+					"name": "Custom Views",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/custom_views?module={{module-api-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"custom_views"
+							],
+							"query": [
+								{
+									"key": "module",
+									"value": "{{module-api-name}}"
+								}
+							]
+						},
+						"description": "To get the custom views data of a particular module. You need to specify the module name in your API request to which the custom view data has to be retrieved."
+					},
+					"response": []
+				},
+				{
+					"name": "Custom View",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/custom_views/{{custom-view-id}}?module={{module-api-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"custom_views",
+								"{{custom-view-id}}"
+							],
+							"query": [
+								{
+									"key": "module",
+									"value": "{{module-api-name}}"
+								}
+							]
+						},
+						"description": "To get the data of any specific custom view of the module. Specify the custom view id of the module in your API request URL, so that the data related to that particular custom view will be retrieved."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Related Lists",
+			"item": [
+				{
+					"name": "Related Lists",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/related_lists?module={{module-api-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"related_lists"
+							],
+							"query": [
+								{
+									"key": "module",
+									"value": "{{module-api-name}}"
+								}
+							]
+						},
+						"description": "To get the related list data of a particular module."
+					},
+					"response": []
+				},
+				{
+					"name": "Related List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/related_lists/{{related-list-id}}?module={{module-api-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"related_lists",
+								"{{related-list-id}}"
+							],
+							"query": [
+								{
+									"key": "module",
+									"value": "{{module-api-name}}"
+								}
+							]
+						},
+						"description": "To get the data of any specific related list of the module. Specify the related list id of the module in your API request URL, so that the data related to that particular related list will be retrieved"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tags",
+			"item": [
+				{
+					"name": "Tags",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/tags?module={{module-api-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"tags"
+							],
+							"query": [
+								{
+									"key": "module",
+									"value": "{{module-api-name}}"
+								}
+							]
+						},
+						"description": "To get and display all the tags in an organization."
+					},
+					"response": []
+				},
+				{
+					"name": "Tags",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"tags\": [\n\t\t{\n\t\t\t\"name\": \"Chems\"\n\t\t},\n\t\t{\n\t\t\t\"name\": \"Agricultural\"\n\t\t}\n\t]\n}"
+						},
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/tags?module={{module-api-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"tags"
+							],
+							"query": [
+								{
+									"key": "module",
+									"value": "{{module-api-name}}"
+								}
+							]
+						},
+						"description": "To create new tags."
+					},
+					"response": []
+				},
+				{
+					"name": "Tags",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"tags\": [\n\t\t{\n\t\t\t\"id\": \"{{tag-id}}\",\n\t\t\t\"name\": \"Chems\"\n\t\t},\n\t\t{\n\t\t\t\"id\": \"{{tag-id}}\",\n\t\t\t\"name\": \"Agricultural\"\n\t\t}\n\t]\n}"
+						},
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/tags?module={{module-api-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"tags"
+							],
+							"query": [
+								{
+									"key": "module",
+									"value": "{{module-api-name}}"
+								}
+							]
+						},
+						"description": "To update multiple tags simultaneously."
+					},
+					"response": []
+				},
+				{
+					"name": "Tag",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"tags\": [\n\t\t{\n\t\t\t\"name\": \"Chems\"\n\t\t}\n\t]\n}"
+						},
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/tags/{{tag-id}}?module={{module-api-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"tags",
+								"{{tag-id}}"
+							],
+							"query": [
+								{
+									"key": "module",
+									"value": "{{module-api-name}}"
+								}
+							]
+						},
+						"description": "To update all the records under a specific tag."
+					},
+					"response": []
+				},
+				{
+					"name": "Tag",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/tags/{{tag-id}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"tags",
+								"{{tag-id}}"
+							]
+						},
+						"description": "To delete a tag from the module"
+					},
+					"response": []
+				},
+				{
+					"name": "Record Count for a Specific Tag",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/tags/{{tag-id}}/actions/records_count?module={{module-api-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"tags",
+								"{{tag-id}}",
+								"actions",
+								"records_count"
+							],
+							"query": [
+								{
+									"key": "module",
+									"value": "{{module-api-name}}"
+								}
+							]
+						},
+						"description": "To get the total number of records under a tag."
+					},
+					"response": []
+				},
+				{
+					"name": "Merge Tag",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"tags\": [\n\t\t{\n\t\t\t\"conflict_id\": \"{{conflicted-tag-id}}\"\n\t\t}\n\t]\n}"
+						},
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/settings/tags/{{tag-id}}/actions/merge",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"settings",
+								"tags",
+								"{{tag-id}}",
+								"actions",
+								"merge"
+							]
+						},
+						"description": "To merge tags and put all the records under the two tags into a single tag."
+					},
+					"response": []
+				},
+				{
+					"name": "Add Tags to a Specific record",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/{{record-id}}/actions/add_tags?tag_names={{tag1-name}},{{tag2-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"{{module-api-name}}",
+								"{{record-id}}",
+								"actions",
+								"add_tags"
+							],
+							"query": [
+								{
+									"key": "tag_names",
+									"value": "{{tag1-name}},{{tag2-name}}"
+								}
+							]
+						},
+						"description": "To add tags to a specific record."
+					},
+					"response": []
+				},
+				{
+					"name": "Add Tags to Multiple records",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/actions/add_tags?ids={{record1-id}},{{record2-id}}&tag_names={{tag1-name}},{{tag2-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"{{module-api-name}}",
+								"actions",
+								"add_tags"
+							],
+							"query": [
+								{
+									"key": "ids",
+									"value": "{{record1-id}},{{record2-id}}"
+								},
+								{
+									"key": "tag_names",
+									"value": "{{tag1-name}},{{tag2-name}}"
+								}
+							]
+						},
+						"description": "To add tags to multiple records simultaneously."
+					},
+					"response": []
+				},
+				{
+					"name": " Remove Tags from a Specific record",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/{{record-id}}/actions/remove_tags?tag_names={{tag1-name}},{{tag2-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"{{module-api-name}}",
+								"{{record-id}}",
+								"actions",
+								"remove_tags"
+							],
+							"query": [
+								{
+									"key": "tag_names",
+									"value": "{{tag1-name}},{{tag2-name}}"
+								}
+							]
+						},
+						"description": "To delete the tag assocaited with a specific record"
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Tags from Multiple records",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/actions/remove_tags?ids={{record1-id}},{{record2-id}}&tag_names={{tag1-name}},{{tag2-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"{{module-api-name}}",
+								"actions",
+								"remove_tags"
+							],
+							"query": [
+								{
+									"key": "ids",
+									"value": "{{record1-id}},{{record2-id}}"
+								},
+								{
+									"key": "tag_names",
+									"value": "{{tag1-name}},{{tag2-name}}"
+								}
+							]
+						},
+						"description": "To delete the tags associated with records."
+					},
+					"response": []
+				}
+			],
+			"description": "Tags are keywords that help you categorize your records based on their characteristics. Tags help you sort your data and find it easily when you need it."
+		},
+		{
+			"name": "Attachments and Photo",
+			"item": [
+				{
+					"name": "Attachments",
+					"item": [
+						{
+							"name": "Attachments",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/{{record-id}}/Attachments",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}",
+										"{{record-id}}",
+										"Attachments"
+									]
+								},
+								"description": "To get the list of attachments"
+							},
+							"response": []
+						},
+						{
+							"name": "Attachment",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/{{record-id}}/Attachments/{{attachment-id}}",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}",
+										"{{record-id}}",
+										"Attachments",
+										"{{attachment-id}}"
+									]
+								},
+								"description": "To download a file attached to a record. Specify the relevant attachment id and record id in your API request to download the required attachment."
+							},
+							"response": []
+						},
+						{
+							"name": "Upload Attachment",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "file",
+											"value": "",
+											"type": "file"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/{{record-id}}/Attachments",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}",
+										"{{record-id}}",
+										"Attachments"
+									]
+								},
+								"description": "To attach a file to a record (as MULTIPART). Specify the module name and the relavant attachment id in your API request to upload the attachment to your record."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Photo",
+					"item": [
+						{
+							"name": "Photo",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/{{record-id}}/photo",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}",
+										"{{record-id}}",
+										"photo"
+									]
+								},
+								"description": "To download the photo associated with a Lead/Contact. You need to send the unique id of the Lead or contact record in your API request to download the required photo."
+							},
+							"response": []
+						},
+						{
+							"name": "Upload Photo",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "file",
+											"value": "",
+											"type": "file"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/{{record-id}}/photo",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}",
+										"{{record-id}}",
+										"photo"
+									]
+								},
+								"description": "To upload a photo (as MULTIPART) to a record in Leads or Contacts. You need to provide the record id of the associated Lead or Contact in your API request to which the required photo has to be uploaded."
+							},
+							"response": []
+						}
+					]
+				}
+			],
+			"description": "Attachments provide more information about a contact or a company, which normally cannot be displayed. You may also need to send images, text files or videos or any other type of files to contacts. The files and attachments API allows a user to get a list of attachments, upload or download a photo or a file."
+		},
+		{
+			"name": "Notes",
+			"item": [
+				{
+					"name": "All",
+					"item": [
+						{
+							"name": "Notes",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/Notes",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"Notes"
+									]
+								},
+								"description": "To get the list of notes."
+							},
+							"response": [
+								{
+									"name": "Notes",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											}
+										],
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Notes",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Notes"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "Text",
+									"header": [],
+									"cookie": [],
+									"body": ""
+								}
+							]
+						},
+						{
+							"name": "Notes",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Note_Title\": \"Contacted\",\n\t\t\t\"Note_Content\": \"Need to do further tracking\",\n\t\t\t\"Parent_Id\": \"{{parent-record-id}}\",\n\t\t\t\"$se_module\": \"{{parent-module-api-name}}\"\n\t\t}\n\t]\n}"
+								},
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/Notes",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"Notes"
+									]
+								},
+								"description": "To add new notes."
+							},
+							"response": []
+						},
+						{
+							"name": "Notes",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"id\": \"{{note-id}}\",\n\t\t\t\"Note_Title\": \"Contacted\",\n\t\t\t\"Note_Content\": \"Need to do further tracking\"\n\t\t},\n\t\t{\n\t\t\t\"id\": \"{{note-id}}\",\n\t\t\t\"Note_Title\": \"Contacted\",\n\t\t\t\"Note_Content\": \"Need to do further tracking\"\n\t\t}\n\t]\n}"
+								},
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/Notes",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"Notes"
+									]
+								},
+								"description": "To update notes."
+							},
+							"response": []
+						},
+						{
+							"name": "Note",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Note_Title\": \"Contacted\",\n\t\t\t\"Note_Content\": \"Need to do further tracking\"\n\t\t}\n\t]\n}"
+								},
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/Notes/{{note-id}}",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"Notes",
+										"{{note-id}}"
+									]
+								},
+								"description": "To update a particular note."
+							},
+							"response": []
+						}
+					],
+					"description": "Access notes from all the modules."
+				},
+				{
+					"name": "Specific",
+					"item": [
+						{
+							"name": "Notes",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/{{record-id}}/Notes",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}",
+										"{{record-id}}",
+										"Notes"
+									]
+								},
+								"description": "To get the list of notes of a particular record of the module."
+							},
+							"response": []
+						},
+						{
+							"name": "Notes",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Note_Title\": \"Contacted\",\n\t\t\t\"Note_Content\": \"Need to do further tracking\"\n\t\t}\n\t]\n}"
+								},
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/{{record-id}}/Notes",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}",
+										"{{record-id}}",
+										"Notes"
+									]
+								},
+								"description": "To add new notes to a particular record."
+							},
+							"response": []
+						},
+						{
+							"name": "Notes",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"id\": \"{{note-id}}\",\n\t\t\t\"Note_Title\": \"Contacted\",\n\t\t\t\"Note_Content\": \"Need to do further tracking\"\n\t\t},\n\t\t{\n\t\t\t\"id\": \"{{note-id}}\",\n\t\t\t\"Note_Title\": \"Contacted\",\n\t\t\t\"Note_Content\": \"Need to do further tracking\"\n\t\t}\n\t]\n}"
+								},
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/{{record-id}}/Notes",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}",
+										"{{record-id}}",
+										"Notes"
+									]
+								},
+								"description": "To update notes under a record."
+							},
+							"response": []
+						},
+						{
+							"name": "Note",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Note_Title\": \"Contacted\",\n\t\t\t\"Note_Content\": \"Need to do further tracking\"\n\t\t}\n\t]\n}"
+								},
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/{{record-id}}/Notes/{{note-id}}",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}",
+										"{{record-id}}",
+										"Notes",
+										"{{note-id}}"
+									]
+								},
+								"description": "To update a particular note under a record."
+							},
+							"response": []
+						}
+					],
+					"description": "Access notes from a particular record and a particular module."
+				}
+			],
+			"description": "Notes are to provide some additional information about a contact, account, deal or task. The notes section can be found in most modules. Hence, with Notes API, you can create, delete or update notes. You can perform actions on single or multiple notes."
+		},
+		{
+			"name": "Records",
+			"item": [
+				{
+					"name": "Bulk",
+					"item": [
+						{
+							"name": "Records",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}"
+									]
+								},
+								"description": "To get the list of available records from a module."
+							},
+							"response": []
+						},
+						{
+							"name": "Records",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"{{field1-api-name}}\": \"{{value1}}\",\n\t\t\t\"{{field2-api-name}}\": \"{{value2}}\"\n\t\t},\n\t\t{\n\t\t\t\"{{field1-api-name}}\": \"{{value1}}\",\n\t\t\t\"{{field2-api-name}}\": \"{{value2}}\"\n\t\t}\n\t],\n\t\"wf_trigger\": true\n}"
+								},
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}"
+									]
+								},
+								"description": "To insert list of new entities into the module."
+							},
+							"response": []
+						},
+						{
+							"name": "Records",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"id\": \"{{record1-id}}\",\n\t\t\t\"{{field1-api-name}}\": \"{{value1}}\",\n\t\t\t\"{{field2-api-name}}\": \"{{value2}}\"\n\t\t},\n\t\t{\n\t\t\t\"id\": \"{{record2-id}}\",\n\t\t\t\"{{field1-api-name}}\": \"{{value1}}\",\n\t\t\t\"{{field2-api-name}}\": \"{{value2}}\"\n\t\t}\n\t],\n\t\"wf_trigger\": true\n}"
+								},
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}"
+									]
+								},
+								"description": "To update the existing entity in the module."
+							},
+							"response": []
+						},
+						{
+							"name": "Merge Records",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"{{field1-api-name}}\": \"{{value1}}\",\n\t\t\t\"{{field2-api-name}}\": \"{{value2}}\"\n\t\t},\n\t\t{\n\t\t\t\"{{field1-api-name}}\": \"{{value1}}\",\n\t\t\t\"{{field2-api-name}}\": \"{{value2}}\"\n\t\t}\n\t],\n\t\"wf_trigger\": true\n}"
+								},
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/upsert",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}",
+										"upsert"
+									]
+								},
+								"description": "To insert a new record, if the record does not exist (records will be inserted or updated based on duplicate checks). If the record already exists, then it will be updated accordingly. This is used to avoid creating duplicate records."
+							},
+							"response": []
+						},
+						{
+							"name": "Records",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}?ids={{record1-id}},{{record2-id}}",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}"
+									],
+									"query": [
+										{
+											"key": "ids",
+											"value": "{{record1-id}},{{record2-id}}"
+										}
+									]
+								},
+								"description": "To delete entities or records from a module."
+							},
+							"response": []
+						},
+						{
+							"name": "Deleted Records",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/deleted",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}",
+										"deleted"
+									]
+								},
+								"description": "To get the list of deleted records."
+							},
+							"response": []
+						},
+						{
+							"name": "Search (with criteria)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/search?criteria=(({{field-api-name}}:{{starts_with|equals}}:{{value}}) and ({{field-api-name}}:{{starts_with|equals}}:{{value}}))",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}",
+										"search"
+									],
+									"query": [
+										{
+											"key": "criteria",
+											"value": "(({{field-api-name}}:{{starts_with|equals}}:{{value}}) and ({{field-api-name}}:{{starts_with|equals}}:{{value}}))"
+										}
+									]
+								},
+								"description": "To retrieve the records that matches your search criteria."
+							},
+							"response": []
+						},
+						{
+							"name": "Search (with email)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/search?email={{email}}",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}",
+										"search"
+									],
+									"query": [
+										{
+											"key": "email",
+											"value": "{{email}}"
+										}
+									]
+								},
+								"description": "To retrieve the records that matches your search criteria."
+							},
+							"response": []
+						},
+						{
+							"name": "Search (with phone)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/search?phone={{phone}}",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}",
+										"search"
+									],
+									"query": [
+										{
+											"key": "phone",
+											"value": "{{phone}}"
+										}
+									]
+								},
+								"description": "To retrieve the records that matches your search criteria."
+							},
+							"response": []
+						},
+						{
+							"name": "Search (with word)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/search?word={{word}}",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}",
+										"search"
+									],
+									"query": [
+										{
+											"key": "word",
+											"value": "{{word}}"
+										}
+									]
+								},
+								"description": "To retrieve the records that matches your search criteria."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Single",
+					"item": [
+						{
+							"name": "Record",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/{{record-id}}",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}",
+										"{{record-id}}"
+									]
+								},
+								"description": "To get a particular entity or record."
+							},
+							"response": []
+						},
+						{
+							"name": "Record",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"{{field1-api-name}}\": \"{{value1}}\",\n\t\t\t\"{{field2-api-name}}\": \"{{value2}}\"\n\t\t}\n\t],\n\t\"wf_trigger\": true\n}"
+								},
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/{{record-id}}",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}",
+										"{{record-id}}"
+									]
+								},
+								"description": "To update a particular entity or record."
+							},
+							"response": []
+						},
+						{
+							"name": "Record",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									}
+								],
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/{{record-id}}",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"{{module-api-name}}",
+										"{{record-id}}"
+									]
+								},
+								"description": "To delete a particular entity or record."
+							},
+							"response": []
+						},
+						{
+							"name": "Convert Lead",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "{{authorization-token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"overwrite\": true,\n\t\t\t\"notify_lead_owner\": true,\n\t\t\t\"notify_new_entity_owner\": true,\n\t\t\t\"Accounts\": \"{{account-id}}\",\n\t\t\t\"Contacts\": \"{{contact-id}}\",\n\t\t\t\"assign_to\": \"{{user-id}}\",\n\t\t\t\"Deals\": {\n\t\t\t\t\"Campaign_Source\": \"{{campaign-id}}\",\n\t\t\t\t\"Deal_Name\": \"Robert\",\n\t\t\t\t\"Closing_Date\": \"2016-03-30\",\n\t\t\t\t\"Stage\": \"Closed Won\",\n\t\t\t\t\"Amount\": 56.6\n\t\t\t}\n\t\t}\n\t]\n}"
+								},
+								"url": {
+									"raw": "{{api-domain}}/crm/v2/Leads/{{record-id}}/actions/convert",
+									"host": [
+										"{{api-domain}}"
+									],
+									"path": [
+										"crm",
+										"v2",
+										"Leads",
+										"{{record-id}}",
+										"actions",
+										"convert"
+									]
+								},
+								"description": "To convert a lead."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Sample Request",
+					"item": [
+						{
+							"name": "Create",
+							"item": [
+								{
+									"name": "Leads",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Last_Name\": \"Last_Name\",\n\t\t\t\"Email\": \"newcrmapi@zoho.com\",\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Rating\": \"Acquired\",\n\t\t\t\"Website\": \"crm.zoho.com\",\n\t\t\t\"Twitter\": \"Twitter\",\n\t\t\t\"Salutation\": \"Mr.\",\n\t\t\t\"First_Name\": \"First_Name\",\n\t\t\t\"Lead_Status\": \"Attempted to Contact\",\n\t\t\t\"Industry\": \"ASP\",\n\t\t\t\"Skype_ID\": \"Skype_ID\",\n\t\t\t\"Phone\": \"98883434559\",\n\t\t\t\"Street\": \"Street\",\n\t\t\t\"Zip_Code\": \"Zip_Code\",\n\t\t\t\"Email_Opt_Out\": false,\n\t\t\t\"Designation\": \"Designation\",\n\t\t\t\"City\": \"City\",\n\t\t\t\"No_of_Employees\": 1791,\n\t\t\t\"Mobile\": \"98883434559\",\n\t\t\t\"State\": \"State\",\n\t\t\t\"Lead_Source\": \"Advertisement\",\n\t\t\t\"Country\": \"Country\",\n\t\t\t\"Fax\": \"Fax\",\n\t\t\t\"Annual_Revenue\": 136.67,\n\t\t\t\"Secondary_Email\": \"newcrmapi@zoho.com\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Leads",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Leads"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Accounts",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Parent_Account\": {\n\t\t\t\t\"id\": \"{{parent-account-id}}\"\n\t\t\t},\n\t\t\t\"Ownership\": \"Private\",\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Account_Type\": \"Competitor\",\n\t\t\t\"Rating\": \"Active\",\n\t\t\t\"SIC_Code\": 12792,\n\t\t\t\"Shipping_State\": \"Shipping_State\",\n\t\t\t\"Website\": \"crm.zoho.com\",\n\t\t\t\"Employees\": 12792,\n\t\t\t\"Industry\": \"Data/Telecom OEM\",\n\t\t\t\"Account_Site\": \"Account_Site\",\n\t\t\t\"Phone\": \"988844559\",\n\t\t\t\"Billing_Country\": \"Billing_Country\",\n\t\t\t\"Account_Name\": \"Account_Name\",\n\t\t\t\"Account_Number\": \"1245681\",\n\t\t\t\"Ticker_Symbol\": \"Ticker_Symbol\",\n\t\t\t\"Billing_Street\": \"Billing_Street\",\n\t\t\t\"Billing_Code\": \"Billing_Code\",\n\t\t\t\"Shipping_City\": \"Shipping_City\",\n\t\t\t\"Shipping_Country\": \"Shipping_Country\",\n\t\t\t\"Shipping_Code\": \"Shipping_Code\",\n\t\t\t\"Billing_City\": \"Billing_City\",\n\t\t\t\"Billing_State\": \"Billing_State\",\n\t\t\t\"Fax\": \"Fax\",\n\t\t\t\"Annual_Revenue\": 127.67,\n\t\t\t\"Shipping_Street\": \"Shipping_Street\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Accounts",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Accounts"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Contacts",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Account_Name\": {\n\t\t\t\t\"id\": \"{{account-id}}\"\n\t\t\t},\n\t\t\t\"Vendor_Name\": {\n\t\t\t\t\"id\": \"{{vendor-id}}\"\n\t\t\t},\n\t\t\t\"Email\": \"newcrmapi@zoho.com\",\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Mailing_Zip\": \"Mailing_Zip\",\n\t\t\t\"Reports_To\": \"Reports_To\",\n\t\t\t\"Other_Phone\": \"988844559\",\n\t\t\t\"Mailing_State\": \"Mailing_State\",\n\t\t\t\"Twitter\": \"Twitter\",\n\t\t\t\"Other_Zip\": \"Other_Zip\",\n\t\t\t\"Mailing_Street\": \"Mailing_Street\",\n\t\t\t\"Other_State\": \"Other_State\",\n\t\t\t\"Salutation\": \"Mrs.\",\n\t\t\t\"Other_Country\": \"Other_Country\",\n\t\t\t\"First_Name\": \"First_Name\",\n\t\t\t\"Asst_Phone\": \"988844559\",\n\t\t\t\"Department\": \"Department\",\n\t\t\t\"Skype_ID\": \"Skype_ID\",\n\t\t\t\"Assistant\": \"Assistant\",\n\t\t\t\"Phone\": \"988844559\",\n\t\t\t\"Mailing_Country\": \"Mailing_Country\",\n\t\t\t\"Email_Opt_Out\": true,\n\t\t\t\"Date_of_Birth\": \"2018-01-25\",\n\t\t\t\"Mailing_City\": \"Mailing_City\",\n\t\t\t\"Other_City\": \"Other_City\",\n\t\t\t\"Title\": \"Title\",\n\t\t\t\"Other_Street\": \"Other_Street\",\n\t\t\t\"Mobile\": \"988844559\",\n\t\t\t\"Home_Phone\": \"988844559\",\n\t\t\t\"Last_Name\": \"Last_Name\",\n\t\t\t\"Lead_Source\": \"Cold Call\",\n\t\t\t\"Fax\": \"Fax\",\n\t\t\t\"Secondary_Email\": \"newcrmapi@zoho.com\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Contacts",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Contacts"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Deals",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Account_Name\": {\n\t\t\t\t\"id\": \"{{account-id}}\"\n\t\t\t},\n\t\t\t\"Contact_Name\": {\n\t\t\t\t\"id\": \"{{contact-id}}\"\n\t\t\t},\n\t\t\t\"Campaign_Source\": {\n\t\t\t\t\"id\": \"{{campaign-id}}\"\n\t\t\t},\n\t\t\t\"Type\": \"New Business\",\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Deal_Name\": \"Deal_Name\",\n\t\t\t\"Amount\": 1237.67,\n\t\t\t\"Next_Step\": \"Next_Step\",\n\t\t\t\"Stage\": \"Needs Analysis\",\n\t\t\t\"Lead_Source\": \"Cold Call\",\n\t\t\t\"Closing_Date\": \"2018-01-25\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Deals",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Deals"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Vendors",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Email\": \"newcrmapi@zoho.com\",\n\t\t\t\"Category\": \"Category\",\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Vendor_Name\": \"Vendor_Name\",\n\t\t\t\"Website\": \"crm.zoho.com\",\n\t\t\t\"City\": \"City\",\n\t\t\t\"Phone\": \"988844559\",\n\t\t\t\"State\": \"State\",\n\t\t\t\"GL_Account\": \"Rental-Income\",\n\t\t\t\"Street\": \"Street\",\n\t\t\t\"Country\": \"Country\",\n\t\t\t\"Zip_Code\": \"Zip_Code\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Vendors",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Vendors"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Price_Books",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Active\": true,\n\t\t\t\"Pricing_Details\": [\n\t\t\t\t{\n\t\t\t\t\t\"to_range\": 5,\n\t\t\t\t\t\"discount\": 0,\n\t\t\t\t\t\"from_range\": 1\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"to_range\": 11,\n\t\t\t\t\t\"discount\": 1,\n\t\t\t\t\t\"from_range\": 6\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"to_range\": 17,\n\t\t\t\t\t\"discount\": 2,\n\t\t\t\t\t\"from_range\": 12\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"to_range\": 23,\n\t\t\t\t\t\"discount\": 3,\n\t\t\t\t\t\"from_range\": 18\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"to_range\": 29,\n\t\t\t\t\t\"discount\": 4,\n\t\t\t\t\t\"from_range\": 24\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Pricing_Model\": \"Differential\",\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Price_Book_Name\": \"Price_Book_Name\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Price_Books",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Price_Books"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Products",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"data\": [\n    {\n      \"Owner\": {\n        \"id\": \"{{user-id}}\"\n      },\n      \"Handler\": {\n        \"id\": \"{{user-id}}\"\n      },\n      \"Vendor_Name\": {\n        \"id\": \"{{vendor-id}}\"\n      },\n      \"Product_Category\": \"Software\",\n      \"Qty_in_Demand\": 1237.89,\n      \"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n      \"Commission_Rate\": 1237.67,\n      \"Product_Name\": \"Product_Name\",\n      \"Quantity_In_Stock\": 12792,\n      \"Sales_Start_Date\": \"2018-01-25\",\n      \"Tax\": [\n        \"Sales Tax\"\n      ],\n      \"Support_Start_Date\": \"2018-01-25\",\n      \"Product_Active\": true,\n      \"Usage_Unit\": \"Caton\",\n      \"Product_Code\": \"Product_Code\",\n      \"Qty_Ordered\": 1237.89,\n      \"Manufacturer\": \"LexPon Inc.\",\n      \"Qty_in_Stock\": 1237.89,\n      \"Support_Expiry_Date\": \"2018-01-25\",\n      \"Sales_End_Date\": \"2018-01-25\",\n      \"Unit_Price\": 1237.67,\n      \"Taxable\": true,\n      \"Reorder_Level\": 1237.89\n    }\n  ]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Products",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Products"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Quotes",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Contact_Name\": {\n\t\t\t\t\"id\": \"{{contact-id}}\"\n\t\t\t},\n\t\t\t\"Deal_Name\": {\n\t\t\t\t\"id\": \"{{deal-id}}\"\n\t\t\t},\n\t\t\t\"Account_Name\": {\n\t\t\t\t\"id\": \"{{account-name}}\"\n\t\t\t},\n\t\t\t\"Discount\": 127.67,\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Shipping_State\": \"Shipping_State\",\n\t\t\t\"Tax\": 127.67,\n\t\t\t\"Valid_Till\": \"2018-01-25\",\n\t\t\t\"Billing_Country\": \"Billing_Country\",\n\t\t\t\"Team\": \"Team\",\n\t\t\t\"Carrier\": \"USPS\",\n\t\t\t\"Quote_Stage\": \"Delivered\",\n\t\t\t\"Billing_Street\": \"Billing_Street\",\n\t\t\t\"Adjustment\": 127.67,\n\t\t\t\"Terms_and_Conditions\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Billing_Code\": \"Billing_Code\",\n\t\t\t\"Product_Details\": [\n\t\t\t\t{\n\t\t\t\t\t\"product\": {\"id\":\"1000000071967\"},\n\t\t\t\t\t\"quantity\": 150,\n\t\t\t\t\t\"Discount\": 20,\n\t\t\t\t\t\"product_description\": \"product_description\",\n\t\t\t\t\t\"Unit Price\": 10,\n\t\t\t\t\t\"line_tax\": [\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 10.5,\n\t\t\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 6.5,\n\t\t\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Subject\": \"Subject\",\n\t\t\t\"Shipping_City\": \"Shipping_City\",\n\t\t\t\"Shipping_Country\": \"Shipping_Country\",\n\t\t\t\"Shipping_Code\": \"Shipping_Code\",\n\t\t\t\"Billing_City\": \"Billing_City\",\n\t\t\t\"Billing_State\": \"Billing_State\",\n\t\t\t\"$line_tax\": [\n\t\t\t\t{\n\t\t\t\t\t\"percentage\": 12.5,\n\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"percentage\": 8.5,\n\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Shipping_Street\": \"Shipping_Street\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Quotes",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Quotes"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Purchase_Orders",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Vendor_Name\": {\n\t\t\t\t\"id\": \"{{vendor-id}}\"\n\t\t\t},\n\t\t\t\"Contact_Name\": {\n\t\t\t\t\"id\": \"{{contact-id}}\"\n\t\t\t},\n\t\t\t\"Discount\": 127.67,\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Shipping_State\": \"Shipping_State\",\n\t\t\t\"Tax\": 127.67,\n\t\t\t\"PO_Date\": \"2018-01-25\",\n\t\t\t\"Billing_Country\": \"Billing_Country\",\n\t\t\t\"Carrier\": \"USPS\",\n\t\t\t\"Status\": \"Delivered\",\n\t\t\t\"Sales_Commission\": 127.67,\n\t\t\t\"PO_Number\": \"PO_Number\",\n\t\t\t\"Due_Date\": \"2018-01-25\",\n\t\t\t\"Billing_Street\": \"Billing_Street\",\n\t\t\t\"Adjustment\": 127.67,\n\t\t\t\"Terms_and_Conditions\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Billing_Code\": \"Billing_Code\",\n\t\t\t\"Product_Details\": [\n\t\t\t\t{\n\t\t\t\t\t\"product\": {\n\t\t\t\t\t\t\"id\": \"1000000071967\"\n\t\t\t\t\t},\n\t\t\t\t\t\"quantity\": 150,\n\t\t\t\t\t\"Discount\": 20,\n\t\t\t\t\t\"product_description\": \"product_description\",\n\t\t\t\t\t\"Unit Price\": 10,\n\t\t\t\t\t\"line_tax\": [\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 10.5,\n\t\t\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 6.5,\n\t\t\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"product\": {\n\t\t\t\t\t\t\"id\": \"100000008007\"\n\t\t\t\t\t},\n\t\t\t\t\t\"quantity\": 151,\n\t\t\t\t\t\"Discount\": 21,\n\t\t\t\t\t\"product_description\": \"product_description\",\n\t\t\t\t\t\"Unit Price\": 11,\n\t\t\t\t\t\"line_tax\": [\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 11.5,\n\t\t\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 7.5,\n\t\t\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Subject\": \"Subject\",\n\t\t\t\"Tracking_Number\": \"Tracking_Number\",\n\t\t\t\"Excise_Duty\": 127.67,\n\t\t\t\"Shipping_City\": \"Shipping_City\",\n\t\t\t\"Shipping_Country\": \"Shipping_Country\",\n\t\t\t\"Shipping_Code\": \"Shipping_Code\",\n\t\t\t\"Billing_City\": \"Billing_City\",\n\t\t\t\"Requisition_No\": \"Requisition_No\",\n\t\t\t\"Billing_State\": \"Billing_State\",\n\t\t\t\"$line_tax\": [\n\t\t\t\t{\n\t\t\t\t\t\"percentage\": 12.5,\n\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"percentage\": 8.5,\n\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Shipping_Street\": \"Shipping_Street\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Purchase_Orders",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Purchase_Orders"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Sales_Orders",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Deal_Name\": {\n\t\t\t\t\"id\": \"{{deal-id}}\"\n\t\t\t},\n\t\t\t\"Account_Name\": {\n\t\t\t\t\"id\": \"{{account-id}}\"\n\t\t\t},\n\t\t\t\"Quote_Name\": {\n\t\t\t\t\"id\": \"{{quote-id}}\"\n\t\t\t},\n\t\t\t\"Contact_Name\": {\n\t\t\t\t\"id\": \"{{contact-id}}\"\n\t\t\t},\n\t\t\t\"Discount\": 127.67,\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Customer_No\": \"Customer_No\",\n\t\t\t\"Shipping_State\": \"Shipping_State\",\n\t\t\t\"Tax\": 127.67,\n\t\t\t\"Billing_Country\": \"Billing_Country\",\n\t\t\t\"Carrier\": \"USPS\",\n\t\t\t\"Status\": \"Delivered\",\n\t\t\t\"Sales_Commission\": 127.67,\n\t\t\t\"Due_Date\": \"2018-01-25\",\n\t\t\t\"Billing_Street\": \"Billing_Street\",\n\t\t\t\"Adjustment\": 127.67,\n\t\t\t\"Terms_and_Conditions\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Billing_Code\": \"Billing_Code\",\n\t\t\t\"Product_Details\": [\n\t\t\t\t{\n\t\t\t\t\t\"product\": {\n\t\t\t\t\t\t\"id\": \"1000000071967\"\n\t\t\t\t\t},\n\t\t\t\t\t\"quantity\": 150,\n\t\t\t\t\t\"Discount\": 20,\n\t\t\t\t\t\"product_description\": \"product_description\",\n\t\t\t\t\t\"Unit Price\": 10,\n\t\t\t\t\t\"line_tax\": [\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 10.5,\n\t\t\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 6.5,\n\t\t\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"product\": {\n\t\t\t\t\t\t\"id\": \"100000008007\"\n\t\t\t\t\t},\n\t\t\t\t\t\"quantity\": 151,\n\t\t\t\t\t\"Discount\": 21,\n\t\t\t\t\t\"product_description\": \"product_description\",\n\t\t\t\t\t\"Unit Price\": 11,\n\t\t\t\t\t\"line_tax\": [\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 11.5,\n\t\t\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 7.5,\n\t\t\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Subject\": \"Subject\",\n\t\t\t\"Excise_Duty\": 127.67,\n\t\t\t\"Shipping_City\": \"Shipping_City\",\n\t\t\t\"Shipping_Country\": \"Shipping_Country\",\n\t\t\t\"Shipping_Code\": \"Shipping_Code\",\n\t\t\t\"Billing_City\": \"Billing_City\",\n\t\t\t\"Purchase_Order\": \"Purchase_Order\",\n\t\t\t\"Billing_State\": \"Billing_State\",\n\t\t\t\"$line_tax\": [\n\t\t\t\t{\n\t\t\t\t\t\"percentage\": 12.5,\n\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"percentage\": 8.5,\n\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Pending\": \"Pending\",\n\t\t\t\"Shipping_Street\": \"Shipping_Street\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Sales_Orders",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Sales_Orders"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Invoices",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Account_Name\": {\n\t\t\t\t\"id\": \"{{account-id}}\"\n\t\t\t},\n\t\t\t\"Sales_Order\": {\n\t\t\t\t\"id\": \"{{sales-order-id}}\"\n\t\t\t},\n\t\t\t\"Contact_Name\": {\n\t\t\t\t\"id\": \"{{contact-id}}\"\n\t\t\t},\n\t\t\t\"Discount\": 127.67,\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Shipping_State\": \"Shipping_State\",\n\t\t\t\"Tax\": 127.67,\n\t\t\t\"Invoice_Date\": \"2018-01-25\",\n\t\t\t\"Billing_Country\": \"Billing_Country\",\n\t\t\t\"Status\": \"Delivered\",\n\t\t\t\"Sales_Commission\": 127.67,\n\t\t\t\"Due_Date\": \"2018-01-25\",\n\t\t\t\"Billing_Street\": \"Billing_Street\",\n\t\t\t\"Adjustment\": 127.67,\n\t\t\t\"Terms_and_Conditions\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Billing_Code\": \"Billing_Code\",\n\t\t\t\"Product_Details\": [\n\t\t\t\t{\n\t\t\t\t\t\"product\": {\n\t\t\t\t\t\t\"id\": \"1000000071967\"\n\t\t\t\t\t},\n\t\t\t\t\t\"quantity\": 150,\n\t\t\t\t\t\"Discount\": 20,\n\t\t\t\t\t\"product_description\": \"product_description\",\n\t\t\t\t\t\"Unit Price\": 10,\n\t\t\t\t\t\"line_tax\": [\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 10.5,\n\t\t\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 6.5,\n\t\t\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"product\": {\n\t\t\t\t\t\t\"id\": \"100000008007\"\n\t\t\t\t\t},\n\t\t\t\t\t\"quantity\": 151,\n\t\t\t\t\t\"Discount\": 21,\n\t\t\t\t\t\"product_description\": \"product_description\",\n\t\t\t\t\t\"Unit Price\": 11,\n\t\t\t\t\t\"line_tax\": [\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 11.5,\n\t\t\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 7.5,\n\t\t\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Subject\": \"Subject\",\n\t\t\t\"Excise_Duty\": 127.67,\n\t\t\t\"Shipping_City\": \"Shipping_City\",\n\t\t\t\"Shipping_Country\": \"Shipping_Country\",\n\t\t\t\"Shipping_Code\": \"Shipping_Code\",\n\t\t\t\"Billing_City\": \"Billing_City\",\n\t\t\t\"Purchase_Order\": \"Purchase_Order\",\n\t\t\t\"Billing_State\": \"Billing_State\",\n\t\t\t\"$line_tax\": [\n\t\t\t\t{\n\t\t\t\t\t\"percentage\": 12.5,\n\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"percentage\": 8.5,\n\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Shipping_Street\": \"Shipping_Street\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Invoices",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Invoices"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Cases",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Product_Name\": {\n\t\t\t\t\"id\": \"{{product-id}}\"\n\t\t\t},\n\t\t\t\"Deal_Name\": {\n\t\t\t\t\"id\": \"{{deal-id}}\"\n\t\t\t},\n\t\t\t\"Account_Name\": {\n\t\t\t\t\"id\": \"{{account-id}}\"\n\t\t\t},\n\t\t\t\"Related_To\": {\n\t\t\t\t\"id\": \"{{contact-id}}\"\n\t\t\t},\n\t\t\t\"Status\": \"On Hold\",\n\t\t\t\"Email\": \"newcrmapi@zoho.com\",\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Internal_Comments\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Priority\": \"Medium\",\n\t\t\t\"Reported_By\": \"Reported_By\",\n\t\t\t\"Case_Origin\": \"Phone\",\n\t\t\t\"Case_Reason\": \"Complex functionality\",\n\t\t\t\"Subject\": \"Subject\",\n\t\t\t\"Type\": \"Feature Request\",\n\t\t\t\"Phone\": \"988844559\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Cases",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Cases"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Solutions",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Product_Name\": {\n\t\t\t\t\"id\": \"{{product-id}}\"\n\t\t\t},\n\t\t\t\"Status\": \"Duplicate\",\n\t\t\t\"Answer\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Solution_Title\": \"Solution_Title\",\n\t\t\t\"Question\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Solutions",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Solutions"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Tasks",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Who_Id\": {\n\t\t\t\t\"id\": \"{{contact-id}}\"\n\t\t\t},\n\t\t\t\"What_Id\": {\n\t\t\t\t\"id\": \"{{record-id}}\"\n\t\t\t},\n\t\t\t\"$se_module\": \"{{record-module}}\",\n\t\t\t\"Status\": \"In Progress\",\n\t\t\t\"Send_Notification_Email\": true,\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Due_Date\": \"2018-01-25\",\n\t\t\t\"Priority\": \"Low\",\n\t\t\t\"send_notification\": true,\n\t\t\t\"Subject\": \"Subject\",\n\t\t\t\"Remind_At\": {\n\t\t\t\t\"ALARM\": \"FREQ=NONE;ACTION=EMAIL;TRIGGER=DATE-TIME:2018-01-25T17:09:00+05:30\"\n\t\t\t}\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Tasks",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Tasks"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Events",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Who_Id\": {\n\t\t\t\t\"id\": \"{{contact-id}}\"\n\t\t\t},\n\t\t\t\"What_Id\": {\n\t\t\t\t\"id\": \"{{record-id}}\"\n\t\t\t},\n\t\t\t\"$se_module\": \"{{record-module}}\",\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Venue\": \"Venue\",\n\t\t\t\"Start_DateTime\": \"2018-01-27T15:10:00+05:30\",\n\t\t\t\"Participants\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"lead\",\n\t\t\t\t\t\"participant\": \"1000000071949\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"contact\",\n\t\t\t\t\t\"participant\": \"1000000071957\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"email\",\n\t\t\t\t\t\"participant\": \"newcrmapi@zoho.com\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"user\",\n\t\t\t\t\t\"participant\": \"1000000030977\"\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Event_Title\": \"Event_Title\",\n\t\t\t\"send_notification\": true,\n\t\t\t\"End_DateTime\": \"2018-01-27T17:10:00+05:30\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Events",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Events"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Calls",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Who_Id\": {\n\t\t\t\t\"id\": \"{{contact-id}}\"\n\t\t\t},\n\t\t\t\"What_Id\": {\n\t\t\t\t\"id\": \"{{record-id}}\"\n\t\t\t},\n\t\t\t\"$se_module\": \"{{record-module}}\",\n\t\t\t\"Call_Duration\": \"12\",\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Reminder\": \"10 mins\",\n\t\t\t\"Call_Start_Time\": \"2018-01-27T15:10:00+05:30\",\n\t\t\t\"Billable\": true,\n\t\t\t\"Subject\": \"Subject\",\n\t\t\t\"Call_Type\": \"Inbound\",\n\t\t\t\"Call_Result\": \"Call_Result\",\n\t\t\t\"Call_Purpose\": \"Administrative\",\n\t\t\t\"send_notification\": true\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Calls",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Calls"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Update",
+							"item": [
+								{
+									"name": "Leads",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Last_Name\": \"Last_Name\",\n\t\t\t\"Email\": \"newcrmapi@zoho.com\",\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Rating\": \"Acquired\",\n\t\t\t\"Website\": \"crm.zoho.com\",\n\t\t\t\"Twitter\": \"Twitter\",\n\t\t\t\"Salutation\": \"Mr.\",\n\t\t\t\"First_Name\": \"First_Name\",\n\t\t\t\"Lead_Status\": \"Attempted to Contact\",\n\t\t\t\"Industry\": \"ASP\",\n\t\t\t\"Skype_ID\": \"Skype_ID\",\n\t\t\t\"Phone\": \"98883434559\",\n\t\t\t\"Street\": \"Street\",\n\t\t\t\"Zip_Code\": \"Zip_Code\",\n\t\t\t\"Email_Opt_Out\": false,\n\t\t\t\"Designation\": \"Designation\",\n\t\t\t\"City\": \"City\",\n\t\t\t\"No_of_Employees\": 1791,\n\t\t\t\"Mobile\": \"98883434559\",\n\t\t\t\"State\": \"State\",\n\t\t\t\"Lead_Source\": \"Advertisement\",\n\t\t\t\"Country\": \"Country\",\n\t\t\t\"Fax\": \"Fax\",\n\t\t\t\"Annual_Revenue\": 136.67,\n\t\t\t\"Secondary_Email\": \"newcrmapi@zoho.com\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Leads/{{record-id}}",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Leads",
+												"{{record-id}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Accounts",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Parent_Account\": {\n\t\t\t\t\"id\": \"{{parent-account-id}}\"\n\t\t\t},\n\t\t\t\"Ownership\": \"Private\",\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Account_Type\": \"Competitor\",\n\t\t\t\"Rating\": \"Active\",\n\t\t\t\"SIC_Code\": 12792,\n\t\t\t\"Shipping_State\": \"Shipping_State\",\n\t\t\t\"Website\": \"crm.zoho.com\",\n\t\t\t\"Employees\": 12792,\n\t\t\t\"Industry\": \"Data/Telecom OEM\",\n\t\t\t\"Account_Site\": \"Account_Site\",\n\t\t\t\"Phone\": \"988844559\",\n\t\t\t\"Billing_Country\": \"Billing_Country\",\n\t\t\t\"Account_Name\": \"Account_Name\",\n\t\t\t\"Account_Number\": \"1245681\",\n\t\t\t\"Ticker_Symbol\": \"Ticker_Symbol\",\n\t\t\t\"Billing_Street\": \"Billing_Street\",\n\t\t\t\"Billing_Code\": \"Billing_Code\",\n\t\t\t\"Shipping_City\": \"Shipping_City\",\n\t\t\t\"Shipping_Country\": \"Shipping_Country\",\n\t\t\t\"Shipping_Code\": \"Shipping_Code\",\n\t\t\t\"Billing_City\": \"Billing_City\",\n\t\t\t\"Billing_State\": \"Billing_State\",\n\t\t\t\"Fax\": \"Fax\",\n\t\t\t\"Annual_Revenue\": 127.67,\n\t\t\t\"Shipping_Street\": \"Shipping_Street\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Accounts/{{record-id}}",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Accounts",
+												"{{record-id}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Contacts",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Account_Name\": {\n\t\t\t\t\"id\": \"{{account-id}}\"\n\t\t\t},\n\t\t\t\"Vendor_Name\": {\n\t\t\t\t\"id\": \"{{vendor-id}}\"\n\t\t\t},\n\t\t\t\"Email\": \"newcrmapi@zoho.com\",\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Mailing_Zip\": \"Mailing_Zip\",\n\t\t\t\"Reports_To\": \"Reports_To\",\n\t\t\t\"Other_Phone\": \"988844559\",\n\t\t\t\"Mailing_State\": \"Mailing_State\",\n\t\t\t\"Twitter\": \"Twitter\",\n\t\t\t\"Other_Zip\": \"Other_Zip\",\n\t\t\t\"Mailing_Street\": \"Mailing_Street\",\n\t\t\t\"Other_State\": \"Other_State\",\n\t\t\t\"Salutation\": \"Mrs.\",\n\t\t\t\"Other_Country\": \"Other_Country\",\n\t\t\t\"First_Name\": \"First_Name\",\n\t\t\t\"Asst_Phone\": \"988844559\",\n\t\t\t\"Department\": \"Department\",\n\t\t\t\"Skype_ID\": \"Skype_ID\",\n\t\t\t\"Assistant\": \"Assistant\",\n\t\t\t\"Phone\": \"988844559\",\n\t\t\t\"Mailing_Country\": \"Mailing_Country\",\n\t\t\t\"Email_Opt_Out\": true,\n\t\t\t\"Date_of_Birth\": \"2018-01-25\",\n\t\t\t\"Mailing_City\": \"Mailing_City\",\n\t\t\t\"Other_City\": \"Other_City\",\n\t\t\t\"Title\": \"Title\",\n\t\t\t\"Other_Street\": \"Other_Street\",\n\t\t\t\"Mobile\": \"988844559\",\n\t\t\t\"Home_Phone\": \"988844559\",\n\t\t\t\"Last_Name\": \"Last_Name\",\n\t\t\t\"Lead_Source\": \"Cold Call\",\n\t\t\t\"Fax\": \"Fax\",\n\t\t\t\"Secondary_Email\": \"newcrmapi@zoho.com\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Contacts/{{record-id}}",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Contacts",
+												"{{record-id}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Deals",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Account_Name\": {\n\t\t\t\t\"id\": \"{{account-id}}\"\n\t\t\t},\n\t\t\t\"Contact_Name\": {\n\t\t\t\t\"id\": \"{{contact-id}}\"\n\t\t\t},\n\t\t\t\"Campaign_Source\": {\n\t\t\t\t\"id\": \"{{campaign-id}}\"\n\t\t\t},\n\t\t\t\"Type\": \"New Business\",\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Deal_Name\": \"Deal_Name\",\n\t\t\t\"Amount\": 1237.67,\n\t\t\t\"Next_Step\": \"Next_Step\",\n\t\t\t\"Stage\": \"Needs Analysis\",\n\t\t\t\"Lead_Source\": \"Cold Call\",\n\t\t\t\"Closing_Date\": \"2018-01-25\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Deals/{{record-id}}",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Deals",
+												"{{record-id}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Vendors",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Email\": \"newcrmapi@zoho.com\",\n\t\t\t\"Category\": \"Category\",\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Vendor_Name\": \"Vendor_Name\",\n\t\t\t\"Website\": \"crm.zoho.com\",\n\t\t\t\"City\": \"City\",\n\t\t\t\"Phone\": \"988844559\",\n\t\t\t\"State\": \"State\",\n\t\t\t\"GL_Account\": \"Rental-Income\",\n\t\t\t\"Street\": \"Street\",\n\t\t\t\"Country\": \"Country\",\n\t\t\t\"Zip_Code\": \"Zip_Code\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Vendors/{{record-id}}",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Vendors",
+												"{{record-id}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Price_Books",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Active\": true,\n\t\t\t\"Pricing_Details\": [\n\t\t\t\t{\n\t\t\t\t\t\"to_range\": 5,\n\t\t\t\t\t\"discount\": 0,\n\t\t\t\t\t\"from_range\": 1\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"to_range\": 11,\n\t\t\t\t\t\"discount\": 1,\n\t\t\t\t\t\"from_range\": 6\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"to_range\": 17,\n\t\t\t\t\t\"discount\": 2,\n\t\t\t\t\t\"from_range\": 12\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"to_range\": 23,\n\t\t\t\t\t\"discount\": 3,\n\t\t\t\t\t\"from_range\": 18\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"to_range\": 29,\n\t\t\t\t\t\"discount\": 4,\n\t\t\t\t\t\"from_range\": 24\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Pricing_Model\": \"Differential\",\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Price_Book_Name\": \"Price_Book_Name\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Price_Books/{{record-id}}",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Price_Books",
+												"{{record-id}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Products",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"data\": [\n    {\n      \"Owner\": {\n        \"id\": \"{{user-id}}\"\n      },\n      \"Handler\": {\n        \"id\": \"{{user-id}}\"\n      },\n      \"Vendor_Name\": {\n        \"id\": \"{{vendor-id}}\"\n      },\n      \"Product_Category\": \"Software\",\n      \"Qty_in_Demand\": 1237.89,\n      \"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n      \"Commission_Rate\": 1237.67,\n      \"Product_Name\": \"Product_Name\",\n      \"Quantity_In_Stock\": 12792,\n      \"Sales_Start_Date\": \"2018-01-25\",\n      \"Tax\": [\n        \"Sales Tax\"\n      ],\n      \"Support_Start_Date\": \"2018-01-25\",\n      \"Product_Active\": true,\n      \"Usage_Unit\": \"Caton\",\n      \"Product_Code\": \"Product_Code\",\n      \"Qty_Ordered\": 1237.89,\n      \"Manufacturer\": \"LexPon Inc.\",\n      \"Qty_in_Stock\": 1237.89,\n      \"Support_Expiry_Date\": \"2018-01-25\",\n      \"Sales_End_Date\": \"2018-01-25\",\n      \"Unit_Price\": 1237.67,\n      \"Taxable\": true,\n      \"Reorder_Level\": 1237.89\n    }\n  ]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Products/{{record-id}}",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Products",
+												"{{record-id}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Quotes",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Contact_Name\": {\n\t\t\t\t\"id\": \"{{contact-id}}\"\n\t\t\t},\n\t\t\t\"Deal_Name\": {\n\t\t\t\t\"id\": \"{{deal-id}}\"\n\t\t\t},\n\t\t\t\"Account_Name\": {\n\t\t\t\t\"id\": \"{{account-name}}\"\n\t\t\t},\n\t\t\t\"Discount\": 127.67,\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Shipping_State\": \"Shipping_State\",\n\t\t\t\"Tax\": 127.67,\n\t\t\t\"Valid_Till\": \"2018-01-25\",\n\t\t\t\"Billing_Country\": \"Billing_Country\",\n\t\t\t\"Team\": \"Team\",\n\t\t\t\"Carrier\": \"USPS\",\n\t\t\t\"Quote_Stage\": \"Delivered\",\n\t\t\t\"Billing_Street\": \"Billing_Street\",\n\t\t\t\"Adjustment\": 127.67,\n\t\t\t\"Terms_and_Conditions\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Billing_Code\": \"Billing_Code\",\n\t\t\t\"Product_Details\": [\n\t\t\t\t{\n\t\t\t\t\t\"product\": {\"id\":\"1000000071967\"},\n\t\t\t\t\t\"quantity\": 150,\n\t\t\t\t\t\"Discount\": 20,\n\t\t\t\t\t\"product_description\": \"product_description\",\n\t\t\t\t\t\"Unit Price\": 10,\n\t\t\t\t\t\"line_tax\": [\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 10.5,\n\t\t\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 6.5,\n\t\t\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Subject\": \"Subject\",\n\t\t\t\"Shipping_City\": \"Shipping_City\",\n\t\t\t\"Shipping_Country\": \"Shipping_Country\",\n\t\t\t\"Shipping_Code\": \"Shipping_Code\",\n\t\t\t\"Billing_City\": \"Billing_City\",\n\t\t\t\"Billing_State\": \"Billing_State\",\n\t\t\t\"$line_tax\": [\n\t\t\t\t{\n\t\t\t\t\t\"percentage\": 12.5,\n\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"percentage\": 8.5,\n\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Shipping_Street\": \"Shipping_Street\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Quotes/{{record-id}}",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Quotes",
+												"{{record-id}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Purchase_Orders",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Vendor_Name\": {\n\t\t\t\t\"id\": \"{{vendor-id}}\"\n\t\t\t},\n\t\t\t\"Contact_Name\": {\n\t\t\t\t\"id\": \"{{contact-id}}\"\n\t\t\t},\n\t\t\t\"Discount\": 127.67,\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Shipping_State\": \"Shipping_State\",\n\t\t\t\"Tax\": 127.67,\n\t\t\t\"PO_Date\": \"2018-01-25\",\n\t\t\t\"Billing_Country\": \"Billing_Country\",\n\t\t\t\"Carrier\": \"USPS\",\n\t\t\t\"Status\": \"Delivered\",\n\t\t\t\"Sales_Commission\": 127.67,\n\t\t\t\"PO_Number\": \"PO_Number\",\n\t\t\t\"Due_Date\": \"2018-01-25\",\n\t\t\t\"Billing_Street\": \"Billing_Street\",\n\t\t\t\"Adjustment\": 127.67,\n\t\t\t\"Terms_and_Conditions\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Billing_Code\": \"Billing_Code\",\n\t\t\t\"Product_Details\": [\n\t\t\t\t{\n\t\t\t\t\t\"product\": {\n\t\t\t\t\t\t\"id\": \"1000000071967\"\n\t\t\t\t\t},\n\t\t\t\t\t\"quantity\": 150,\n\t\t\t\t\t\"Discount\": 20,\n\t\t\t\t\t\"product_description\": \"product_description\",\n\t\t\t\t\t\"Unit Price\": 10,\n\t\t\t\t\t\"line_tax\": [\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 10.5,\n\t\t\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 6.5,\n\t\t\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"product\": {\n\t\t\t\t\t\t\"id\": \"100000008007\"\n\t\t\t\t\t},\n\t\t\t\t\t\"quantity\": 151,\n\t\t\t\t\t\"Discount\": 21,\n\t\t\t\t\t\"product_description\": \"product_description\",\n\t\t\t\t\t\"Unit Price\": 11,\n\t\t\t\t\t\"line_tax\": [\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 11.5,\n\t\t\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 7.5,\n\t\t\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Subject\": \"Subject\",\n\t\t\t\"Tracking_Number\": \"Tracking_Number\",\n\t\t\t\"Excise_Duty\": 127.67,\n\t\t\t\"Shipping_City\": \"Shipping_City\",\n\t\t\t\"Shipping_Country\": \"Shipping_Country\",\n\t\t\t\"Shipping_Code\": \"Shipping_Code\",\n\t\t\t\"Billing_City\": \"Billing_City\",\n\t\t\t\"Requisition_No\": \"Requisition_No\",\n\t\t\t\"Billing_State\": \"Billing_State\",\n\t\t\t\"$line_tax\": [\n\t\t\t\t{\n\t\t\t\t\t\"percentage\": 12.5,\n\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"percentage\": 8.5,\n\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Shipping_Street\": \"Shipping_Street\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Purchase_Orders/{{record-id}}",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Purchase_Orders",
+												"{{record-id}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Sales_Orders",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Deal_Name\": {\n\t\t\t\t\"id\": \"{{deal-id}}\"\n\t\t\t},\n\t\t\t\"Account_Name\": {\n\t\t\t\t\"id\": \"{{account-id}}\"\n\t\t\t},\n\t\t\t\"Quote_Name\": {\n\t\t\t\t\"id\": \"{{quote-id}}\"\n\t\t\t},\n\t\t\t\"Contact_Name\": {\n\t\t\t\t\"id\": \"{{contact-id}}\"\n\t\t\t},\n\t\t\t\"Discount\": 127.67,\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Customer_No\": \"Customer_No\",\n\t\t\t\"Shipping_State\": \"Shipping_State\",\n\t\t\t\"Tax\": 127.67,\n\t\t\t\"Billing_Country\": \"Billing_Country\",\n\t\t\t\"Carrier\": \"USPS\",\n\t\t\t\"Status\": \"Delivered\",\n\t\t\t\"Sales_Commission\": 127.67,\n\t\t\t\"Due_Date\": \"2018-01-25\",\n\t\t\t\"Billing_Street\": \"Billing_Street\",\n\t\t\t\"Adjustment\": 127.67,\n\t\t\t\"Terms_and_Conditions\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Billing_Code\": \"Billing_Code\",\n\t\t\t\"Product_Details\": [\n\t\t\t\t{\n\t\t\t\t\t\"product\": {\n\t\t\t\t\t\t\"id\": \"1000000071967\"\n\t\t\t\t\t},\n\t\t\t\t\t\"quantity\": 150,\n\t\t\t\t\t\"Discount\": 20,\n\t\t\t\t\t\"product_description\": \"product_description\",\n\t\t\t\t\t\"Unit Price\": 10,\n\t\t\t\t\t\"line_tax\": [\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 10.5,\n\t\t\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 6.5,\n\t\t\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"product\": {\n\t\t\t\t\t\t\"id\": \"100000008007\"\n\t\t\t\t\t},\n\t\t\t\t\t\"quantity\": 151,\n\t\t\t\t\t\"Discount\": 21,\n\t\t\t\t\t\"product_description\": \"product_description\",\n\t\t\t\t\t\"Unit Price\": 11,\n\t\t\t\t\t\"line_tax\": [\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 11.5,\n\t\t\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 7.5,\n\t\t\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Subject\": \"Subject\",\n\t\t\t\"Excise_Duty\": 127.67,\n\t\t\t\"Shipping_City\": \"Shipping_City\",\n\t\t\t\"Shipping_Country\": \"Shipping_Country\",\n\t\t\t\"Shipping_Code\": \"Shipping_Code\",\n\t\t\t\"Billing_City\": \"Billing_City\",\n\t\t\t\"Purchase_Order\": \"Purchase_Order\",\n\t\t\t\"Billing_State\": \"Billing_State\",\n\t\t\t\"$line_tax\": [\n\t\t\t\t{\n\t\t\t\t\t\"percentage\": 12.5,\n\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"percentage\": 8.5,\n\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Pending\": \"Pending\",\n\t\t\t\"Shipping_Street\": \"Shipping_Street\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Sales_Orders/{{record-id}}",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Sales_Orders",
+												"{{record-id}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Invoices",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Account_Name\": {\n\t\t\t\t\"id\": \"{{account-id}}\"\n\t\t\t},\n\t\t\t\"Sales_Order\": {\n\t\t\t\t\"id\": \"{{sales-order-id}}\"\n\t\t\t},\n\t\t\t\"Contact_Name\": {\n\t\t\t\t\"id\": \"{{contact-id}}\"\n\t\t\t},\n\t\t\t\"Discount\": 127.67,\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Shipping_State\": \"Shipping_State\",\n\t\t\t\"Tax\": 127.67,\n\t\t\t\"Invoice_Date\": \"2018-01-25\",\n\t\t\t\"Billing_Country\": \"Billing_Country\",\n\t\t\t\"Status\": \"Delivered\",\n\t\t\t\"Sales_Commission\": 127.67,\n\t\t\t\"Due_Date\": \"2018-01-25\",\n\t\t\t\"Billing_Street\": \"Billing_Street\",\n\t\t\t\"Adjustment\": 127.67,\n\t\t\t\"Terms_and_Conditions\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Billing_Code\": \"Billing_Code\",\n\t\t\t\"Product_Details\": [\n\t\t\t\t{\n\t\t\t\t\t\"product\": {\n\t\t\t\t\t\t\"id\": \"1000000071967\"\n\t\t\t\t\t},\n\t\t\t\t\t\"quantity\": 150,\n\t\t\t\t\t\"Discount\": 20,\n\t\t\t\t\t\"product_description\": \"product_description\",\n\t\t\t\t\t\"Unit Price\": 10,\n\t\t\t\t\t\"line_tax\": [\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 10.5,\n\t\t\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 6.5,\n\t\t\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"product\": {\n\t\t\t\t\t\t\"id\": \"100000008007\"\n\t\t\t\t\t},\n\t\t\t\t\t\"quantity\": 151,\n\t\t\t\t\t\"Discount\": 21,\n\t\t\t\t\t\"product_description\": \"product_description\",\n\t\t\t\t\t\"Unit Price\": 11,\n\t\t\t\t\t\"line_tax\": [\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 11.5,\n\t\t\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"percentage\": 7.5,\n\t\t\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Subject\": \"Subject\",\n\t\t\t\"Excise_Duty\": 127.67,\n\t\t\t\"Shipping_City\": \"Shipping_City\",\n\t\t\t\"Shipping_Country\": \"Shipping_Country\",\n\t\t\t\"Shipping_Code\": \"Shipping_Code\",\n\t\t\t\"Billing_City\": \"Billing_City\",\n\t\t\t\"Purchase_Order\": \"Purchase_Order\",\n\t\t\t\"Billing_State\": \"Billing_State\",\n\t\t\t\"$line_tax\": [\n\t\t\t\t{\n\t\t\t\t\t\"percentage\": 12.5,\n\t\t\t\t\t\"name\": \"Sales Tax\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"percentage\": 8.5,\n\t\t\t\t\t\"name\": \"Common Tax\"\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Shipping_Street\": \"Shipping_Street\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Invoices/{{record-id}}",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Invoices",
+												"{{record-id}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Cases",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Product_Name\": {\n\t\t\t\t\"id\": \"{{product-id}}\"\n\t\t\t},\n\t\t\t\"Deal_Name\": {\n\t\t\t\t\"id\": \"{{deal-id}}\"\n\t\t\t},\n\t\t\t\"Account_Name\": {\n\t\t\t\t\"id\": \"{{account-id}}\"\n\t\t\t},\n\t\t\t\"Related_To\": {\n\t\t\t\t\"id\": \"{{contact-id}}\"\n\t\t\t},\n\t\t\t\"Status\": \"On Hold\",\n\t\t\t\"Email\": \"newcrmapi@zoho.com\",\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Internal_Comments\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Priority\": \"Medium\",\n\t\t\t\"Reported_By\": \"Reported_By\",\n\t\t\t\"Case_Origin\": \"Phone\",\n\t\t\t\"Case_Reason\": \"Complex functionality\",\n\t\t\t\"Subject\": \"Subject\",\n\t\t\t\"Type\": \"Feature Request\",\n\t\t\t\"Phone\": \"988844559\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Cases/{{record-id}}",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Cases",
+												"{{record-id}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Solutions",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Product_Name\": {\n\t\t\t\t\"id\": \"{{product-id}}\"\n\t\t\t},\n\t\t\t\"Status\": \"Duplicate\",\n\t\t\t\"Answer\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Solution_Title\": \"Solution_Title\",\n\t\t\t\"Question\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Solutions/{{record-id}}",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Solutions",
+												"{{record-id}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Tasks",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Who_Id\": {\n\t\t\t\t\"id\": \"{{contact-id}}\"\n\t\t\t},\n\t\t\t\"What_Id\": {\n\t\t\t\t\"id\": \"{{record-id}}\"\n\t\t\t},\n\t\t\t\"$se_module\": \"{{record-module}}\",\n\t\t\t\"Status\": \"In Progress\",\n\t\t\t\"Send_Notification_Email\": true,\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Due_Date\": \"2018-01-25\",\n\t\t\t\"Priority\": \"Low\",\n\t\t\t\"send_notification\": true,\n\t\t\t\"Subject\": \"Subject\",\n\t\t\t\"Remind_At\": {\n\t\t\t\t\"ALARM\": \"FREQ=NONE;ACTION=EMAIL;TRIGGER=DATE-TIME:2018-01-25T17:09:00+05:30\"\n\t\t\t}\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Tasks/{{record-id}}",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Tasks",
+												"{{record-id}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Events",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Owner\": {\n\t\t\t\t\"id\": \"{{user-id}}\"\n\t\t\t},\n\t\t\t\"Who_Id\": {\n\t\t\t\t\"id\": \"{{contact-id}}\"\n\t\t\t},\n\t\t\t\"What_Id\": {\n\t\t\t\t\"id\": \"{{record-id}}\"\n\t\t\t},\n\t\t\t\"$se_module\": \"{{record-module}}\",\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Venue\": \"Venue\",\n\t\t\t\"Start_DateTime\": \"2018-01-27T15:10:00+05:30\",\n\t\t\t\"Participants\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"lead\",\n\t\t\t\t\t\"participant\": \"1000000071949\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"contact\",\n\t\t\t\t\t\"participant\": \"1000000071957\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"email\",\n\t\t\t\t\t\"participant\": \"newcrmapi@zoho.com\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"user\",\n\t\t\t\t\t\"participant\": \"1000000030977\"\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"Event_Title\": \"Event_Title\",\n\t\t\t\"send_notification\": true,\n\t\t\t\"End_DateTime\": \"2018-01-27T17:10:00+05:30\"\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Events/{{record-id}}",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Events",
+												"{{record-id}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Calls",
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "{{authorization-token}}"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\t\"data\": [\n\t\t{\n\t\t\t\"Who_Id\": {\n\t\t\t\t\"id\": \"{{contact-id}}\"\n\t\t\t},\n\t\t\t\"What_Id\": {\n\t\t\t\t\"id\": \"{{record-id}}\"\n\t\t\t},\n\t\t\t\"$se_module\": \"{{record-module}}\",\n\t\t\t\"Call_Duration\": \"12\",\n\t\t\t\"Description\": \"Design your own layouts that align your business processes precisely. Assign them to profiles appropriately.\",\n\t\t\t\"Reminder\": \"10 mins\",\n\t\t\t\"Call_Start_Time\": \"2018-01-27T15:10:00+05:30\",\n\t\t\t\"Billable\": true,\n\t\t\t\"Subject\": \"Subject\",\n\t\t\t\"Call_Type\": \"Inbound\",\n\t\t\t\"Call_Result\": \"Call_Result\",\n\t\t\t\"Call_Purpose\": \"Administrative\",\n\t\t\t\"send_notification\": true\n\t\t}\n\t]\n}"
+										},
+										"url": {
+											"raw": "{{api-domain}}/crm/v2/Calls/{{record-id}}",
+											"host": [
+												"{{api-domain}}"
+											],
+											"path": [
+												"crm",
+												"v2",
+												"Calls",
+												"{{record-id}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				}
+			],
+			"description": "A record is an entity which stores all the combined information of a particular contact or company, which is acquired from various sources. The information may be acquired from a web-form or from social media services or advertisements, etc. The records API allows the user to get, create, update, delete or search records."
+		},
+		{
+			"name": "Related Records",
+			"item": [
+				{
+					"name": "Related Record",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/{{record-id}}/{{related-list-api-name}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"{{module-api-name}}",
+								"{{record-id}}",
+								"{{related-list-api-name}}"
+							]
+						},
+						"description": "To get the related list records."
+					},
+					"response": []
+				},
+				{
+					"name": "Related Record",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/{{record-id}}/{{related-list-api-name}}/{{related-record-id}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"{{module-api-name}}",
+								"{{record-id}}",
+								"{{related-list-api-name}}",
+								"{{related-record-id}}"
+							]
+						},
+						"description": "To update the relation between the records."
+					},
+					"response": []
+				},
+				{
+					"name": "Related Record",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization-token}}"
+							}
+						],
+						"url": {
+							"raw": "{{api-domain}}/crm/v2/{{module-api-name}}/{{record-id}}/{{related-list-api-name}}/{{related-record-id}}",
+							"host": [
+								"{{api-domain}}"
+							],
+							"path": [
+								"crm",
+								"v2",
+								"{{module-api-name}}",
+								"{{record-id}}",
+								"{{related-list-api-name}}",
+								"{{related-record-id}}"
+							]
+						},
+						"description": "To delete the association between modules."
+					},
+					"response": []
+				}
+			],
+			"description": "A record usually contains additional information such as notes, attachments, products, deals, contacts, etc. Using related lists API, you can retrieve all the related list information."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"if (request.url.indexOf(\"{{accounts-domain}}\") == -1)",
+					"{",
+					"    var access_token = pm.environment.get(\"access-token\");",
+					"    var expiry_time = pm.environment.get(\"expiry-time\");",
+					"    ",
+					"    if (access_token === \"\" || (expiry_time !== \"\" && parseInt(expiry_time) - 1000 < Date.now()))",
+					"    {",
+					"        throw { message: \"access-token is empty or expired\" };",
+					"    }",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
