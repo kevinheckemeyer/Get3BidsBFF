@@ -1,4 +1,4 @@
-package com.get3bids.scrappers.dti.get3bids;
+package com.get3bids.scrappers.dti.outscraper;
 
 import lombok.Getter;
 import lombok.Setter;

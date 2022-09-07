@@ -2,7 +2,7 @@ package com.get3bids.scrappers.utils;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.get3bids.scrappers.dti.get3bids.ExceptionDTO;
+import com.get3bids.scrappers.dti.outscraper.ExceptionDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 

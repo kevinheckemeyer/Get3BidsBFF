@@ -1,7 +1,7 @@
 package com.get3bids.scrappers.services;
 
 import com.get3bids.AbstractTest;
-import com.get3bids.scrappers.dti.get3bids.GoogleMapSearchItem;
+import com.get3bids.scrappers.dti.outscraper.GoogleMapSearchItem;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ public class GoogleScrapperServiceTest extends AbstractTest {
     public void googleSearchTest(){
         try {
            HashMap inputMap = new HashMap<String, Object>() {{
-                put("query", "restaurants in 33467");
+                put("query", "roof contractors in 34102");
                 put("reviewsLimit", 20);
                 put("limit", 20);
                 put("language", "en");
