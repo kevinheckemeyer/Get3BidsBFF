@@ -177,26 +177,27 @@ public class ZohoService {
         int weeDayCount = 0;
         while (weekdays.hasMoreTokens()) {
             if(weeDayCount==0) {
-                vendor.setMonHours(weekdays.nextToken());
-            }
-            if(weeDayCount==1) {
-                vendor.setTueHours(weekdays.nextToken());
-            }
-            if(weeDayCount==2) {
-                vendor.setWedHours(weekdays.nextToken());
-            }
-            if(weeDayCount==3) {
-                vendor.setThuHours(weekdays.nextToken());
-            }
-            if(weeDayCount==4) {
-                vendor.setFriHours(weekdays.nextToken());
-            }
-            if(weeDayCount==5) {
-                vendor.setSatHours(weekdays.nextToken());
-            }
-            if(weeDayCount==6) {
                 vendor.setSunHours(weekdays.nextToken());
             }
+            if(weeDayCount==1) {
+                vendor.setMonHours(weekdays.nextToken());
+            }
+            if(weeDayCount==2) {
+                vendor.setTueHours(weekdays.nextToken());
+            }
+            if(weeDayCount==3) {
+                vendor.setWedHours(weekdays.nextToken());
+            }
+            if(weeDayCount==4) {
+                vendor.setThuHours(weekdays.nextToken());
+            }
+            if(weeDayCount==5) {
+                vendor.setFriHours(weekdays.nextToken());
+            }
+            if(weeDayCount==6) {
+                vendor.setSatHours(weekdays.nextToken());
+            }
+
             weeDayCount++;
         }
     }
