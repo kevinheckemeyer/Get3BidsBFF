@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -24,9 +21,7 @@ public class ZohoService {
     ZohoConfig zohoConfig;
     @Autowired
     GoogleScrapperService googleScrapperService;
-    public final String GOOGLE_MAPS_SEARCH_QUERY = "roof contractors in florida";
-    public final int GOOGLE_MAPS_SEARCH_RECORD_LIMIT = 1;
-    public final int GOOGLE_MAPS_SEARCH_REVIEW_LIMIT = 20;
+
     public Users getUsers()throws JsonProcessingException {
         Users users = null;
         HttpResult httpResult = zohoConnectionService.getWithAccessToken(zohoConfig, zohoConfig.getApiDomain()+"/crm/v3/users?type=AllUsers");
@@ -52,27 +47,28 @@ public class ZohoService {
         }
         return commonResponse;
     }
-    public boolean runJob(){
+    public boolean runJob(Map<String,Object> inputMap){
         try {
-            HashMap inputMap = new HashMap<String, Object>() {{
-                put("query", GOOGLE_MAPS_SEARCH_QUERY);
-                put("reviewsLimit", GOOGLE_MAPS_SEARCH_REVIEW_LIMIT);
-                put("limit", GOOGLE_MAPS_SEARCH_RECORD_LIMIT);
-                put("language", "en");
-            }};
-            Users users = getUsers();
+             Users users = getUsers();
             if(users!=null) {
                 CommonResponse commonResponse = null;
                 List<GoogleMapSearchItem> googleMapSearchItemList = googleScrapperService.googleMapsSearchV2(inputMap);
+                int googleRecordCount=1;
                 for (GoogleMapSearchItem googleMapSearchItem : googleMapSearchItemList) {
                     commonResponse = createVendor(populateVendor(googleMapSearchItem, users));
                     if(commonResponse!=null) {
                         commonResponse = createAccount(populateAccount(googleMapSearchItem, users, commonResponse));
-                        log.info("Company and Location Creation Status : " + commonResponse.getData().get(0).getStatus());
+                        if(commonResponse!=null) {
+                            log.info("Company and Location Creation Status : " + commonResponse.getData().get(0).getStatus()+" "+googleRecordCount+" st record created");
+                        }else{
+                            log.info("Location Creation failed "+googleRecordCount+"st record exit");
+                            break;
+                        }
                     }else{
-                        log.info("Company creation failed");
+                        log.info("Company creation failed "+googleRecordCount+"st record  exit");
                         break;
                     }
+                    googleRecordCount++;
                 }
             }else{
                 log.info("Zoho access token could be expired.");
@@ -114,10 +110,10 @@ public class ZohoService {
         accounts.add(account);
         accountRequest.setData(accounts);
         accountRequest.setDuplicate_check_fields(duplicateFieldCheck);
-        String accountStr = CommonUtils.getObjectMapper().writeValueAsString(accountRequest);
-        return accountStr;
+        return CommonUtils.getObjectMapper().writeValueAsString(accountRequest);
+
     }
-    private String populateVendor(GoogleMapSearchItem googleMapSearchItem,Users users)throws JsonProcessingException, UnsupportedEncodingException {
+    private String populateVendor(GoogleMapSearchItem googleMapSearchItem,Users users)throws JsonProcessingException {
             VendorRequest vendorRequest = new VendorRequest();
             ArrayList<Vendor> data = new ArrayList<>();
             Vendor vendor = new Vendor();
@@ -139,7 +135,6 @@ public class ZohoService {
             vendor.setLatitude(String.valueOf(googleMapSearchItem.getLatitude()));
             vendor.setLongitude(String.valueOf(googleMapSearchItem.getLongitude()));
             vendor.setZip_Code(googleMapSearchItem.getPostal_code());
-            //vendor.setMapLink(URLEncoder.encode(googleMapSearchItem.getLocation_link(), StandardCharsets.UTF_8.toString()));
             vendor.setGoogleVerified(googleMapSearchItem.isVerified());
             vendor.setWorkingHours(googleMapSearchItem.getWorking_hours_old_format());
             vendor.setGoogleCategory(googleMapSearchItem.getCategory());
@@ -151,8 +146,8 @@ public class ZohoService {
             data.add(vendor);
             vendorRequest.setData(data);
             setDuplicateFields(vendorRequest);
-            String vendorStr = CommonUtils.getObjectMapper().writeValueAsString(vendorRequest);
-            return vendorStr;
+            return CommonUtils.getObjectMapper().writeValueAsString(vendorRequest);
+
 
     }
     private void setStarReviews(Vendor vendor,GoogleMapSearchItem googleMapSearchItem){

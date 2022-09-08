@@ -36,10 +36,8 @@ public class GoogleScrapperServiceTest extends AbstractTest {
                 put("language", "en");
             }};
             List<GoogleMapSearchItem> googleMapSearchItemList = googleScrapperService.googleMapsSearchV2(inputMap);
-            System.out.println(CommonUtils.getObjectMapper().writeValueAsString(googleMapSearchItemList.get(0)));
-
-        }catch(Exception ex){
-            System.out.println(ex.getMessage());
+           }catch(Exception ex){
+            log.error(ex.getMessage());
         }
 
 
