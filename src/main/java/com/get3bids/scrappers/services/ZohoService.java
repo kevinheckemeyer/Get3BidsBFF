@@ -174,31 +174,30 @@ public class ZohoService {
     }
     private void setWorkingHours(Vendor vendor,GoogleMapSearchItem googleMapSearchItem){
         StringTokenizer weekdays = new StringTokenizer(googleMapSearchItem.getWorking_hours_old_format(),"|");
-        int weeDayCount = 0;
         while (weekdays.hasMoreTokens()) {
-            if(weeDayCount==0) {
-                vendor.setSunHours(weekdays.nextToken());
+            String weekday = weekdays.nextToken();
+            if(weekday.contains("Sunday")) {
+                vendor.setSunHours(weekday);
             }
-            if(weeDayCount==1) {
-                vendor.setMonHours(weekdays.nextToken());
+            if(weekday.contains("Monday")) {
+                vendor.setMonHours(weekday);
             }
-            if(weeDayCount==2) {
-                vendor.setTueHours(weekdays.nextToken());
+            if(weekday.contains("Tuesday")) {
+                vendor.setTueHours(weekday);
             }
-            if(weeDayCount==3) {
-                vendor.setWedHours(weekdays.nextToken());
+            if(weekday.contains("Wednesday")) {
+                vendor.setWedHours(weekday);
             }
-            if(weeDayCount==4) {
-                vendor.setThuHours(weekdays.nextToken());
+            if(weekday.contains("Thursday")) {
+                vendor.setThuHours(weekday);
             }
-            if(weeDayCount==5) {
-                vendor.setFriHours(weekdays.nextToken());
+            if(weekday.contains("Friday")) {
+                vendor.setFriHours(weekday);
             }
-            if(weeDayCount==6) {
-                vendor.setSatHours(weekdays.nextToken());
+            if(weekday.contains("Saturday")) {
+                vendor.setSatHours(weekday);
             }
 
-            weeDayCount++;
         }
     }
 
