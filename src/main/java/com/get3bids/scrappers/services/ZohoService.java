@@ -88,10 +88,6 @@ public class ZohoService {
         ArrayList<String> servicesProvided = new ArrayList<>();
         servicesProvided.add(googleMapSearchItem.getType());
         account.setAccount_Name(googleMapSearchItem.getFull_address());
-        account.setBilling_City(googleMapSearchItem.getCity());
-        account.setBilling_State(googleMapSearchItem.getState());
-        account.setBilling_Street(googleMapSearchItem.getStreet());
-        account.setBilling_Code(googleMapSearchItem.getPostal_code());
         account.setDescription(googleMapSearchItem.getCategory());
         account.setPropertyCity(googleMapSearchItem.getCity());
         account.setPropertyState(googleMapSearchItem.getState());

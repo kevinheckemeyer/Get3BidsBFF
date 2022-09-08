@@ -41,7 +41,7 @@ public class Vendor {
     public String googlRating;
     @JsonProperty("Business_Status")
     public String businessStatus;
-    @JsonProperty("Lat")
+    @JsonProperty("Latitude")
     public String latitude;
     @JsonProperty("Longitude")
     public String longitude;
