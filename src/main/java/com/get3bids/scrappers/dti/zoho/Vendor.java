@@ -37,8 +37,6 @@ public class Vendor {
     public String zip_Code;
     @JsonProperty("Google_ID")
     public String googleId;
-    @JsonProperty("Google_Review_Link")
-    public String googleReviewLink;
     @JsonProperty("Google_Rating")
     public String googlRating;
     @JsonProperty("Business_Status")
@@ -85,7 +83,12 @@ public class Vendor {
     public String satHours;
     @JsonProperty("Sun_Hours")
     public String sunHours;
-
+    @JsonProperty("Map")
+    public String map;
+    @JsonProperty("Google_Review")
+    public String googleReview;
+    @JsonProperty("Google_Reviews_Count")
+    public String googleReviewwsCount;
 
 
 }

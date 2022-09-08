@@ -127,7 +127,8 @@ public class ZohoService {
             vendor.setDescription(googleMapSearchItem.getCategory());
             vendor.setGoogleId(googleMapSearchItem.getGoogle_id());
             vendor.setGooglRating(String.valueOf(googleMapSearchItem.getRating()));
-            vendor.setGoogleReviewLink(googleMapSearchItem.getReviews_link());
+            vendor.setGoogleReview(googleMapSearchItem.getReviews_link());
+            vendor.setGoogleReviewwsCount(String.valueOf(googleMapSearchItem.getReviews()));
             vendor.setBusinessStatus(googleMapSearchItem.getBusiness_status());
             vendor.setAddress(googleMapSearchItem.getFull_address());
             vendor.setTimeZone(googleMapSearchItem.getTime_zone());
@@ -138,6 +139,7 @@ public class ZohoService {
             vendor.setGoogleVerified(googleMapSearchItem.isVerified());
             vendor.setWorkingHours(googleMapSearchItem.getWorking_hours_old_format());
             vendor.setGoogleCategory(googleMapSearchItem.getCategory());
+            vendor.setMap(googleMapSearchItem.getLocation_link());
             setSubTypes(vendor,googleMapSearchItem);
             setWorkingHours(vendor,googleMapSearchItem);
             Owner owner = new Owner();
