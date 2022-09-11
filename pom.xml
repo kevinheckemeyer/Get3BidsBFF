@@ -19,7 +19,7 @@
         <sonar.java.codeCoveragePlugin>jacoco</sonar.java.codeCoveragePlugin>
         <sonar.coverage.jacoco.xmlReportPaths>${project.test.result.directory}/jacoco/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
-        <project.test.coverage>60%</project.test.coverage>
+        <project.test.coverage>1%</project.test.coverage>
         <sonar.exclusions>
             **/*.xml
         </sonar.exclusions>
