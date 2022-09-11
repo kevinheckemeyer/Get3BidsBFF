@@ -1,5 +1,5 @@
 version: 0.0
 os: linux
 files:
-  - source: ./GET3BIDSBFF-0.0.1-SNAPSHOT.jar
+  - source: ./Get3BidsBFF-0.0.1-SNAPSHOT
     destination: /tmp
