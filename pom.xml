@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.get3bids</groupId>
-    <artifactId>Get3BidsBFF</artifactId>
+    <artifactId>GET3BIDSBFF</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Get3BidsBFF</name>
     <description>Get3BidsBFF</description>
